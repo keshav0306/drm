@@ -44,14 +44,14 @@ void drm_get_resources(int fd, struct drm_mode_card_res * res){
     memset(res, 0, sizeof(struct drm_mode_card_res));
 	drm_ioctl(fd, DRM_IOCTL_MODE_GETRESOURCES, res);
 
-	if(res.count_connectors){
-		res.connector_id_ptr = (uint64_t)malloc(res.count_connectors * sizeof(int));
+	if(res->count_connectors){
+		res->connector_id_ptr = (uint64_t)malloc(res->count_connectors * sizeof(int));
 	}
-	if(res.count_encoders){
-		res.encoder_id_ptr = (uint64_t)malloc(res.count_encoders * sizeof(int));
+	if(res->count_encoders){
+		res->encoder_id_ptr = (uint64_t)malloc(res->count_encoders * sizeof(int));
 	}
-	if(res.count_crtcs){
-		res.crtc_id_ptr = (uint64_t)malloc(res.count_crtcs * sizeof(int));
+	if(res->count_crtcs){
+		res->crtc_id_ptr = (uint64_t)malloc(res->count_crtcs * sizeof(int));
 	}
 	
     drm_ioctl(fd, DRM_IOCTL_MODE_GETRESOURCES, res);
@@ -61,19 +61,19 @@ void drm_get_resources(int fd, struct drm_mode_card_res * res){
 void drm_get_connector(int fd, int connector_id, struct drm_mode_get_connector * connector){
 
     memset(connector, 0, sizeof(struct drm_mode_get_connector));
-    connector.connector_id = connector_id;
+    connector->connector_id = connector_id;
 
     drm_ioctl(fd, DRM_IOCTL_MODE_GETCONNECTOR, connector);
 
-    if(connector.count_modes){
-        connector.modes_ptr = (uint64_t)malloc(connector.count_modes * sizeof(struct drm_mode_modeinfo));
+    if(connector->count_modes){
+        connector->modes_ptr = (uint64_t)malloc(connector->count_modes * sizeof(struct drm_mode_modeinfo));
     }
-    if(connector.count_props){
-        connector.props_ptr = (uint64_t)malloc(connector.count_props * sizeof(uint32_t));
-        connector.prop_values_ptr = (uint64_t)malloc(connector.count_props * sizeof(uint64_t));
+    if(connector->count_props){
+        connector->props_ptr = (uint64_t)malloc(connector->count_props * sizeof(uint32_t));
+        connector->prop_values_ptr = (uint64_t)malloc(connector->count_props * sizeof(uint64_t));
     }
-    if(connector.count_encoders){
-        connector.encoders_ptr = (uint64_t)malloc(connector.count_encoders * sizeof(int)); 
+    if(connector->count_encoders){
+        connector->encoders_ptr = (uint64_t)malloc(connector->count_encoders * sizeof(int)); 
     }
 
     drm_ioctl(fd, DRM_IOCTL_MODE_GETCONNECTOR, connector);
@@ -83,7 +83,7 @@ void drm_get_connector(int fd, int connector_id, struct drm_mode_get_connector *
 void drm_get_encoder(int fd, int encoder_id, struct drm_mode_get_encoder * enc){
 
     memset(enc, 0, sizeof(struct drm_mode_get_encoder));
-    enc.encoder_id = encoder_id;
+    enc->encoder_id = encoder_id;
     drm_ioctl(fd, DRM_IOCTL_MODE_GETENCODER, enc);
 
 }
@@ -120,14 +120,12 @@ void create_framebuffer(int fd, int width, int height, struct framebuffer * fb){
     fb->height = height;
     fb->width = width;
 
-    return fbcmd.fb_id;
-
 }
 
 void drm_set_crtc(int fd, int fb_id, struct display * display, uint64_t connectors_ptr){
 
 	struct drm_mode_crtc crtc;
-    memset(crtc, 0, sizeof(struct drm_mode_crtc));
+    memset(&crtc, 0, sizeof(struct drm_mode_crtc));
     crtc.mode = display->mode;
     crtc.crtc_id = display->crtc_id;
     crtc.count_connectors = 1;
@@ -136,7 +134,7 @@ void drm_set_crtc(int fd, int fb_id, struct display * display, uint64_t connecto
     crtc.mode_valid = 1;
     crtc.set_connectors_ptr = connectors_ptr;
     crtc.fb_id = fb_id;
-    drm_ioctl(fd, DRM_IOCTL_MODE_SETCRTC, crtc);
+    drm_ioctl(fd, DRM_IOCTL_MODE_SETCRTC, &crtc);
 
 }
 
@@ -189,7 +187,7 @@ int main(){
     }
 
     struct framebuffer fb;
-    create_framebuffer(mode.hdisplay, mode.vdisplay, &fb);
+    create_framebuffer(fd, mode.hdisplay, mode.vdisplay, &fb);
 
     drm_set_crtc(fd, fb.fb_id, &display, (uint64_t)&connector.connector_id);
     drm_page_flip(fd, fb.fb_id, enc.crtc_id);
