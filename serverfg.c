@@ -10,7 +10,8 @@
 #include <sys/ipc.h>
 #include <stdint.h>
 #include <sys/shm.h>
-
+#include <drm/drm.h>
+#include <drm/drm_mode.h>
 #include "list.h"
 #include "common_include.h"
 #include "server_include.h"
@@ -267,7 +268,7 @@ void * compositor(){
                 pos += e->length;
                 if(e->type == DRM_EVENT_FLIP_COMPLETE){
                     compositor_draw(display, fb);
-                    fb ~= fb;
+                    fb = ~fb;
                     break;
                 }
             }
