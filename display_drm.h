@@ -18,7 +18,7 @@ struct display{
     uint64_t ptr_connector_id;
     int encoder_id;
     int crtc_id;
-    struct framebuffer * fbs[2];
+    struct framebuffer ** fbs;
     struct drm_mode_modeinfo mode;
 };
 
