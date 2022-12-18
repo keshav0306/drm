@@ -278,8 +278,8 @@ void * compositor(){
 
 int start_the_server(){
 	
-	pthread_t compositor;
-	pthread_create(&compositor, NULL, compositor,  NULL);
+	pthread_t compositor_thread;
+	pthread_create(&compositor_thread, NULL, compositor,  NULL);
 	int server_fd, window_connection_fd;
 	struct sockaddr_in address;
 	int addrlen = sizeof(address);
