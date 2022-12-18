@@ -51,9 +51,15 @@ struct window * create_window(int height, int width, int handle){
 	request->args[1] = width;
 
 	int ret = write(handle, request, sizeof(struct request));
+//	int ret = write(handle, "hi", 3);
+	printf("write ret is %d\n", ret);
+	if(ret < 0){
+	perror("ret error\n");
+	}
     ret = read(handle, buffer, BUFF_SIZE);    
-
+	printf("read ret is %d\n", ret);
     if(ret < 0 || ret != sizeof(struct response)){
+	    printf("inside create window if%d, %d\n", ret, sizeof(struct response));
         return NULL;
     }
 
