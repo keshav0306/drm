@@ -15,7 +15,7 @@ struct framebuffer{
 struct display{
     int fd;
     int connector_id;
-    uint64_t * ptr_connector_id;
+    uint64_t ptr_connector_id;
     int encoder_id;
     int crtc_id;
     struct framebuffer * fbs[2];
