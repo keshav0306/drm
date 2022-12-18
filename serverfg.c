@@ -106,7 +106,9 @@ int change_window_map_data(struct list * list, int window_id, int map){
 		if(element->id == window_id){
 			struct window * window = (struct window *)(element->data_ptr);
 			window->mapped = map;
+			printf("inside MAP\n");
 		}
+
 	}
 	pthread_mutex_unlock(&list->lock);
 
@@ -118,6 +120,7 @@ struct response * request_map_window(struct request * request){
 		goto error;
 	}
 	int window_id = request->args[0];
+	printf("window_id %d\n", window_id);
 	int ret = change_window_map_data(window_list, window_id, 1);
 	if(ret < 0){
 		goto error;
@@ -211,20 +214,21 @@ void * handle_the_window(void * args){
 		int length_of_request = read(fd, buffer, BUFF_SIZE);
 		if(length_of_request < 0){
 			printf("read error\n");
-			exit(1);
+			return 0;
 		}
 		if(length_of_request < sizeof(struct request)){
 			printf("network error\n");
-			exit(1);
+			return 0;
 		}
 		struct request * request = (struct request *)buffer;
 		printf("requested opcode %d\n", request->opcode);
+		printf("%d %d\n", request->args[0], request->args[1]);
 		struct response * response = handle_request(request);
 		printf("respond value %d\n", response->return_value);
 		int len = write(fd, response, sizeof(struct response));
 		if(len != sizeof(struct response)){
 			printf("write error\n");
-			exit(1);
+			return 0;
 		}
 	}
 }
@@ -232,7 +236,7 @@ void * handle_the_window(void * args){
 void * composit(){
 	while(1){
 		sleep(1);
-		// print_list(window_list);
+		 print_list(window_list);
 		if(window_list->length == 2){
 			 printf("%d\n", (((struct window *)(window_list->head->next->data_ptr))->addr)[0]);
 		}
@@ -240,12 +244,41 @@ void * composit(){
 }
 
 void compositor_draw(struct display * display, int fb){
-
+//while(1){
     char * addr = display->fbs[fb]->addr;
     int size = display->fbs[fb]->size;
-    // paint each pixel 
-    drm_page_flip(display->fd, display->fbs[fb]->fb_id, display->crtc_id);
-
+    // paint each pixel
+    memset(addr, 0, size);
+    pthread_mutex_lock(&window_list->lock);
+    for(struct element * element = window_list->head->next;element != NULL; element = element->next){
+    		struct window * window = ((struct window *)(element->data_ptr));
+		int map = window->mapped;
+		int x = 100;
+		printf("%d\n", (((struct window *)(window_list->head->next->data_ptr))->addr)[0]);
+		int y = 50;
+		int h = window->height;
+		int w = window->width;
+		//int h = 100;
+		//int w = 100;
+		int size = window->size;
+		printf("%d * %d, %d\n", h, w, map);
+		char * win_addr = window->addr;
+		if(map == 1){
+//			printf("inside %c", win_addr[0]);
+			for(int i=0;i<w;i++){
+				for(int j=0;j<h;j++){
+					addr[(i + x)*4*800 + 4*(j + y)] = win_addr[i*4*w + 4*j];
+				}
+			}
+		}
+		
+    }
+   
+   pthread_mutex_unlock(&window_list->lock); 
+  usleep(1000); 
+   drm_page_flip(display->fd, display->fbs[fb]->fb_id, display->crtc_id);
+//	printf("draw happened\n");
+//}
 }
 
 void * compositor(){
@@ -264,12 +297,15 @@ void * compositor(){
             int len = read(display->fd, buffer, 1024);
             int pos = 0;
             while(pos < len){
+//		    printf("inside while compositor\n");
                 struct drm_event * e = (struct drm_event *)&buffer[pos];
                 pos += e->length;
+//		printf("%d type %d", e->type, DRM_EVENT_FLIP_COMPLETE);
                 if(e->type == DRM_EVENT_FLIP_COMPLETE){
                     compositor_draw(display, fb);
-                    fb = ~fb;
-                    break;
+	//	    printf("inside if\n");
+                    fb ^= 1;
+           //         break;
                 }
             }
         }
@@ -281,7 +317,7 @@ int start_the_server(){
 	pthread_t compositor_thread;
 	pthread_create(&compositor_thread, NULL, compositor,  NULL);
 	int server_fd, window_connection_fd;
-	struct sockaddr_in address;
+	struct sockaddr_in address, cli;
 	int addrlen = sizeof(address);
 
 	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0){
@@ -295,7 +331,7 @@ int start_the_server(){
 
 
 	if (bind(server_fd, (struct sockaddr*)&address, sizeof(address))< 0){
-		printf("server bind error");
+		perror("server bind error");
 		exit(1);
 	}
 
@@ -303,17 +339,22 @@ int start_the_server(){
 		printf("server listen error");
 		exit(1);
 	}
-
+//	printf("after listen %d\n", server_fd);
 	while(1){
-
-		if ((window_connection_fd = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen)) < 0){
-			printf("server accept error");
+//		printf("before accept\n");
+//	sleep(5);
+//	printf("after sleep\n");
+		if ((window_connection_fd = accept(server_fd, (struct sockaddr*)&cli, &addrlen)) < 0){
+			perror("server accept error");
 			exit(1);
+		
 		}
-
+//		exit(0);
 		pthread_t handler_thread_id;
+//		printf("after accept\n");
 		int * id = (int *)malloc(sizeof(int));
 		*id = window_connection_fd;
+//		printf("after malloc\n");
 		pthread_create(&handler_thread_id, NULL, handle_the_window, (void *)id);
 	}
 
@@ -331,20 +372,29 @@ void initialize_globals(){
 void display_init(){
 
 	int fd = open_dev();
-	show_modes(fd);
+//	show_modes(fd);
 	int height, width;
-	scanf("%d %d", &height, &width);
-	display = choose_mode(fd, height, width);
+//	scanf("%d %d", &height, &width);
+	display = choose_mode(fd, 600, 800);
+	printf("after choose mode %d %d %d\n", display->crtc_id, display->encoder_id, display->connector_id);
+	if(display == NULL){
+		return;
+	}
 	create_framebuffers(display);
+//	printf("after create_framebuffer\n");
+	int size =display->fbs[0]->size;
+	char * addr = display->fbs[0]->addr;
+//	memset(addr ,255, size);
 	start_display(display);
-
+//	printf("after start_display\n");
+	//sleep(2);
 }
 
 
 int main(int argc, char const* argv[]){
 
 	initialize_globals();
-
+	sleep(3);
 	display_init();
 
 	start_the_server();
