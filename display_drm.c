@@ -212,6 +212,8 @@ struct display * choose_mode(int fd, int height, int width){
                 display->crtc_id = enc.crtc_id;
                 display->mode = mode;
                 display->fd = fd;
+                display->height = height;
+                display->width = width;
                 display->ptr_connector_id = (uint64_t)&(display->connector_id);
                 return display;
             }
