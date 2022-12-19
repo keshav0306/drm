@@ -12,6 +12,7 @@
 #include <sys/shm.h>
 #include <drm/drm.h>
 #include <drm/drm_mode.h>
+
 #include "list.h"
 #include "common_include.h"
 #include "server_include.h"
@@ -100,6 +101,7 @@ struct response * request_create_window(struct request * request){
 }
 
 void decide_inital_coordinates(struct window * window){
+
 	int screen_width = display->fbs[0]->width;
 	int screen_height = display->fbs[0]->height;
 	int window_width = window->width;
@@ -109,6 +111,7 @@ void decide_inital_coordinates(struct window * window){
 	int y = rand()%(screen_height - window_height);
 	window->x = x;
 	window->y = y;
+
 }
 
 int change_window_map_data(struct list * list, int window_id, int map){
@@ -134,7 +137,6 @@ struct response * request_map_window(struct request * request){
 		goto error;
 	}
 	int window_id = request->args[0];
-	printf("window_id %d\n", window_id);
 	int ret = change_window_map_data(window_list, window_id, 1);
 	if(ret < 0){
 		goto error;
@@ -265,7 +267,8 @@ void compositor_draw(struct display * display, int fb){
     memset(addr, 0, size);
     pthread_mutex_lock(&window_list->lock);
     for(struct element * element = window_list->head->next;element != NULL; element = element->next){
-    		struct window * window = ((struct window *)(element->data_ptr));
+    
+		struct window * window = ((struct window *)(element->data_ptr));
 		int map = window->mapped;
 		printf("%d\n", (((struct window *)(window_list->head->next->data_ptr))->addr)[0]);
 		int x = window->x;
@@ -278,7 +281,7 @@ void compositor_draw(struct display * display, int fb){
 		if(map == 1){
 			for(int i=0;i<h;i++){
 				for(int j=0;j<4*w;j++){
-					// need to do bound checking here otherwise seg fault will come
+					// need to do bound checking here otherwise seg fault may come
 					addr[(i + y)*4*800 + (j + x)] = win_addr[i*4*w + j];
 				}
 			}
@@ -308,15 +311,12 @@ void * compositor(){
             int len = read(display->fd, buffer, 1024);
             int pos = 0;
             while(pos < len){
-//		    printf("inside while compositor\n");
                 struct drm_event * e = (struct drm_event *)&buffer[pos];
                 pos += e->length;
-//		printf("%d type %d", e->type, DRM_EVENT_FLIP_COMPLETE);
                 if(e->type == DRM_EVENT_FLIP_COMPLETE){
                     compositor_draw(display, fb);
-	//	    printf("inside if\n");
                     fb ^= 1;
-           //         break;
+                    // break;
                 }
             }
         }
@@ -350,23 +350,18 @@ int start_the_server(){
 		printf("server listen error");
 		exit(1);
 	}
-//	printf("after listen %d\n", server_fd);
 	while(1){
-//		printf("before accept\n");
-//	sleep(5);
-//	printf("after sleep\n");
+
 		if ((window_connection_fd = accept(server_fd, (struct sockaddr*)&cli, &addrlen)) < 0){
 			perror("server accept error");
 			exit(1);
 		
 		}
-//		exit(0);
 		pthread_t handler_thread_id;
-//		printf("after accept\n");
 		int * id = (int *)malloc(sizeof(int));
 		*id = window_connection_fd;
-//		printf("after malloc\n");
 		pthread_create(&handler_thread_id, NULL, handle_the_window, (void *)id);
+		
 	}
 
 }
