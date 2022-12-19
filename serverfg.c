@@ -401,7 +401,7 @@ void * compositor(){
 					}
 				}
 			}
-    		pthread_mutex_lock(&window_list->lock);
+    		pthread_mutex_unlock(&window_list->lock);
 
 		}
     }
