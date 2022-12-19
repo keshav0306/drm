@@ -71,7 +71,6 @@ struct response * request_create_window(struct request * request){
 	close(fd);
 	printf("name is %s\n", name);
 	int key = ftok(name, 0);
-	printf("key is %d\n", key);
     int id = shmget(key, size, 0664 | IPC_CREAT);
 
 	if(id < 0){
@@ -99,11 +98,26 @@ struct response * request_create_window(struct request * request){
 	new_window->addr = ptr;
 	new_window->window_id = response->response[0];
 
-	list_insert(window_list, (uint64_t)new_window, new_window->window_id);
+	insert_before_last(window_list, (uint64_t)new_window, new_window->window_id);
 
 	return response;
 	error:
 	return error_response();
+}
+
+void create_mouse_window(){
+
+	struct window * new_window = (struct window *)malloc(sizeof(struct window));
+	new_window->height = MOUSE_HEIGHT;
+	new_window->width = MOUSE_WIDTH;
+	new_window->mapped = 1;
+	new_window->size = 4 * MOUSE_HEIGHT * MOUSE_WIDTH;
+	new_window->x = display->width / 2;
+	new_window->y = display->height / 2;
+	new_window->addr = malloc(new_window->size);
+	memset(new_window->addr, 255, new_window->size);
+	list_insert(window_list, uint64_t(), MOUSE_ID);
+
 }
 
 void decide_inital_coordinates(struct window * window){
@@ -308,7 +322,11 @@ void * compositor(){
     FD_ZERO(&fds);
     while(1){
         FD_SET(display->fd, &fds);
-        int ret = select((display->fd) + 1, &fds, NULL, NULL, NULL);
+		FD_SET(display->mouse_fd, &fds);
+		int mouse_fd = display->mouse_fd;
+		int display_fd = display->fd;
+		int max_fd = mouse_fd > display_fd ? mouse_fd : display_fd;
+        int ret = select(max_fd + 1, &fds, NULL, NULL, NULL);
         if(ret < 0){
             perror("select error");
         }
@@ -326,6 +344,25 @@ void * compositor(){
                 }
             }
         }
+		if(FD_ISSET(mouse_fd, &fds)){
+			char mouse_buff[3];
+			int left_clicked = mouse_buff[0]&1;
+			int right_clicked = mouse_buff[0]*2;
+			int xflag = 1, yflag = 1;
+			if(mouse_buff[1] < 0){
+				mouse_buff[1] = ~mouse_buff[1] + 1;
+				xflag = -1;
+			}
+			if(mouse_buff[2] < 0){
+				mouse_buff[2] = ~mouse_buff[2] + 1;
+				yflag = -1;
+			}
+			int change_in_x = xflag * mouse_buff[1];
+			int change_in_y = yflag * mouse_buff[2];
+			struct window * mouse_window = (struct window *)(window_list->tail->data_ptr);
+			mouse_window->x += change_in_x;
+			mouse_window->y += change_in_y;
+		}
     }
 }
 
@@ -398,7 +435,15 @@ void display_init(){
 	char * addr = display->fbs[0]->addr;
 //	memset(addr ,255, size);
 	start_display(display);
-//	printf("after start_display\n");
+
+	int mouse_fd = open("/dev/input/mice", O_RDONLY);
+	if(mouse_fd < 0){
+		perror("Error opeing mouse\n");
+		exit(1);
+	}
+	display->mouse_fd = mouse_fd;
+	create_mouse_window();
+	//	printf("after start_display\n");
 	//sleep(2);
 }
 
