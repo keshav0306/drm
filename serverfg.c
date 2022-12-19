@@ -362,7 +362,7 @@ void * compositor(){
 			char mouse_buff[3];
 			int ret = read(mouse_fd, mouse_buff, 3);
 			int left_clicked = mouse_buff[0]&1;
-			int right_clicked = mouse_buff[0]*2;
+			int right_clicked = mouse_buff[0]&2;
 			int xflag = 1, yflag = 1;
 			if(mouse_buff[1] >> 7 == 1){
 				mouse_buff[1] = ~mouse_buff[1] + 1;
@@ -377,18 +377,23 @@ void * compositor(){
 			struct window * mouse_window = (struct window *)(window_list->tail->data_ptr);
 			mouse_window->x += change_in_x;
 			mouse_window->y -= change_in_y;
-			printf("%d %d change\n", change_in_x, change_in_y);
+			//printf("%d %d change\n", change_in_x, change_in_y);
 
     		pthread_mutex_lock(&window_list->lock);
 			if(left_clicked){
+<<<<<<< HEAD
+				for(struct element * element = window_list->tail->prev; element->prev != NULL; element=element->prev){
+=======
 				for(struct element * element = window_list->tail->prev; element->prev->prev != NULL && element != window_list->head; element=element->prev){
+>>>>>>> 625003197b38a2f0300beaa3b685b8a9cda077c2
 					struct window * window = (struct window *)element->data_ptr;
 					int ms_x = mouse_window->x;
 					int ms_y = mouse_window->y;
-					if(ms_x > window->x && ms_x < window->x + window->width && ms_y < window->y && ms_y > window->y + WINDOW_BAR_HEIGHT){
+					if(ms_x > window->x && ms_x < window->x + window->width && ms_y < window->y && ms_y > window->y - WINDOW_BAR_HEIGHT){
 						if(element == window_list->tail->prev){
 							window->x += change_in_x;
 							window->y -= change_in_y;
+							printf("inside selected one\n");
 						}else{
 							struct element * next = element->next;
 							element->prev->next = next;
@@ -397,7 +402,9 @@ void * compositor(){
 							element->prev = window_list->tail->prev;
 							window_list->tail->prev->next = element;
 							window_list->tail->prev = element;
+							printf("inside unselected one\n");
 						}
+					break;
 					}
 				}
 			}
@@ -453,8 +460,8 @@ int start_the_server(){
 void init_window_bar_colour(){
 
 	window_bar_active[0] = 0xFF;
-	window_bar_active[1] = 0xFF;
-	window_bar_active[2] = 0xA5;
+	window_bar_active[1] = 0x00;
+	window_bar_active[2] = 0xFF;
 	window_bar_active[3] = 0x00;
 
 	window_bar_inactive[0] = 0xFF;
