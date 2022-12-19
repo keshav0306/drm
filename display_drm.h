@@ -21,6 +21,7 @@ struct display{
     int crtc_id;
     int height;
     int width;
+    int size;
     struct framebuffer ** fbs;
     struct drm_mode_modeinfo mode;
 };

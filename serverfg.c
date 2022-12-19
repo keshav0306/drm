@@ -305,18 +305,24 @@ void compositor_draw(struct display * display, int fb){
 			if(element->next != NULL){
 				for(int i=0;i<WINDOW_BAR_HEIGHT;i++){
 					for(int j=0;j<4*w;j++){
-						if(element->next->next == NULL){
-							addr[(i + (y - WINDOW_BAR_HEIGHT)) * 4 * 800 + (j + x*4)] = window_bar_active[j%4];
-						}
-						else{
-							addr[(i + (y - WINDOW_BAR_HEIGHT)) * 4 * 800 + (j + x*4)] = window_bar_inactive[j%4];
+						int address = (i + (y - WINDOW_BAR_HEIGHT)) * 4 * 800 + (j + x*4);
+						if(address >= 0 && address < display->size){
+							if(element->next->next == NULL){
+									addr[address] = window_bar_active[j%4];
+							}
+							else{
+								addr[address] = window_bar_inactive[j%4];
+							}
 						}
 					}
 				}
 			}
 			for(int i=0;i<h;i++){
 				for(int j=0;j<4*w;j++){
-					addr[(i + y)*4*800 + (j + x*4)] = win_addr[i*4*w + j];
+					int address = (i + y)*4*800 + (j + x*4);
+					if(address >= 0 && address < display->size){
+						addr[address] = win_addr[i*4*w + j];
+					}
 				}
 			}
 		}
@@ -381,7 +387,7 @@ void * compositor(){
 			//printf("%d %d change\n", change_in_x, change_in_y);
 			
     		pthread_mutex_lock(&window_list->lock);
-			if(left_clicked && !prev_left_clicked){
+			if(left_clicked){
 
 				for(struct element * element = window_list->tail->prev; element->prev != NULL; element=element->prev){
 
@@ -393,7 +399,7 @@ void * compositor(){
 							window->x += change_in_x;
 							window->y -= change_in_y;
 							printf("inside selected one\n");
-						}else{
+						}else if(!prev_left_clicked){
 							struct element * next = element->next;
 							element->prev->next = next;
 							next->prev = element->prev;
