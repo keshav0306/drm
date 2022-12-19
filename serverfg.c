@@ -99,6 +99,18 @@ struct response * request_create_window(struct request * request){
 	return error_response();
 }
 
+void decide_inital_coordinates(struct window * window){
+	int screen_width = display->fbs[0]->width;
+	int screen_height = display->fbs[0]->height;
+	int window_width = window->width;
+	int window_height = window->height;
+	srand(time(NULL));
+	int x = rand()%(screen_width - window_width);
+	int y = rand()%(screen_height - window_height);
+	window->x = x;
+	window->y = y;
+}
+
 int change_window_map_data(struct list * list, int window_id, int map){
 
 	pthread_mutex_lock(&list->lock);
@@ -106,7 +118,9 @@ int change_window_map_data(struct list * list, int window_id, int map){
 		if(element->id == window_id){
 			struct window * window = (struct window *)(element->data_ptr);
 			window->mapped = map;
-			printf("inside MAP\n");
+			if(map == 1){
+				decide_inital_coordinates(window);
+			}
 		}
 
 	}
@@ -244,7 +258,7 @@ void * composit(){
 }
 
 void compositor_draw(struct display * display, int fb){
-//while(1){
+
     char * addr = display->fbs[fb]->addr;
     int size = display->fbs[fb]->size;
     // paint each pixel
@@ -253,21 +267,19 @@ void compositor_draw(struct display * display, int fb){
     for(struct element * element = window_list->head->next;element != NULL; element = element->next){
     		struct window * window = ((struct window *)(element->data_ptr));
 		int map = window->mapped;
-		int x = window->x;
 		printf("%d\n", (((struct window *)(window_list->head->next->data_ptr))->addr)[0]);
+		int x = window->x;
 		int y = window->y;
 		int h = window->height;
 		int w = window->width;
-		//int h = 100;
-		//int w = 100;
 		int size = window->size;
 		printf("%d * %d, %d\n", h, w, map);
 		char * win_addr = window->addr;
 		if(map == 1){
-//			printf("inside %c", win_addr[0]);
 			for(int i=0;i<h;i++){
 				for(int j=0;j<4*w;j++){
-					addr[(i + x)*4*800 + (j + y)] = win_addr[i*4*w + j];
+					// need to do bound checking here otherwise seg fault will come
+					addr[(i + y)*4*800 + (j + x)] = win_addr[i*4*w + j];
 				}
 			}
 		}
@@ -277,8 +289,7 @@ void compositor_draw(struct display * display, int fb){
    pthread_mutex_unlock(&window_list->lock); 
    usleep(1000); 
    drm_page_flip(display->fd, display->fbs[fb]->fb_id, display->crtc_id);
-//	printf("draw happened\n");
-//}
+
 }
 
 void * compositor(){
