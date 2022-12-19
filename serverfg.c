@@ -333,6 +333,7 @@ void * compositor(){
 
     fd_set fds;
     int fb = 1;
+    int prev_left_clicked = 0;
     FD_ZERO(&fds);
     while(1){
         FD_SET(display->fd, &fds);
@@ -378,14 +379,12 @@ void * compositor(){
 			mouse_window->x += change_in_x;
 			mouse_window->y -= change_in_y;
 			//printf("%d %d change\n", change_in_x, change_in_y);
-
+			
     		pthread_mutex_lock(&window_list->lock);
-			if(left_clicked){
-<<<<<<< HEAD
+			if(left_clicked && !prev_left_clicked){
+
 				for(struct element * element = window_list->tail->prev; element->prev != NULL; element=element->prev){
-=======
-				for(struct element * element = window_list->tail->prev; element->prev->prev != NULL && element != window_list->head; element=element->prev){
->>>>>>> 625003197b38a2f0300beaa3b685b8a9cda077c2
+
 					struct window * window = (struct window *)element->data_ptr;
 					int ms_x = mouse_window->x;
 					int ms_y = mouse_window->y;
@@ -408,6 +407,7 @@ void * compositor(){
 					}
 				}
 			}
+			prev_left_clicked = left_clicked;
     		pthread_mutex_unlock(&window_list->lock);
 
 		}
