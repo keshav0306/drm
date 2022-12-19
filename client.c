@@ -1,9 +1,3 @@
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <fcntl.h>
@@ -17,12 +11,13 @@
 
 int main(int argc, char ** argv){
 	int handle = connect_to_server("127.0.0.1");
-	struct window * window = create_window(100, 200, handle);
+	struct window * window = create_window(400, 400, handle);
 	if(window == NULL){
 		exit(1);
 	}
+	map_window(window, handle);
 	while(1){
-		(window->addr)[0] += 1;
+		memset(window->addr, 255, window->size);
 		sleep(1);
 	}
 }
