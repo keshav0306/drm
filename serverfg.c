@@ -116,7 +116,7 @@ void create_mouse_window(){
 	new_window->y = display->height / 2;
 	new_window->addr = malloc(new_window->size);
 	memset(new_window->addr, 255, new_window->size);
-	list_insert(window_list, uint64_t(), MOUSE_ID);
+	list_insert(window_list, (uint64_t)(new_window), MOUSE_ID);
 
 }
 
@@ -290,19 +290,19 @@ void compositor_draw(struct display * display, int fb){
     
 		struct window * window = ((struct window *)(element->data_ptr));
 		int map = window->mapped;
-		printf("%d\n", (((struct window *)(window_list->head->next->data_ptr))->addr)[0]);
+//		printf("%d\n", (((struct window *)(window_list->head->next->data_ptr))->addr)[0]);
 		int x = window->x;
 		int y = window->y;
 		int h = window->height;
 		int w = window->width;
 		int size = window->size;
-		printf("%d * %d, %d\n", h, w, map);
+//		printf("%d * %d, %d\n", x, y, map);
 		char * win_addr = window->addr;
 		if(map == 1){
 			for(int i=0;i<h;i++){
 				for(int j=0;j<4*w;j++){
 					// need to do bound checking here otherwise seg fault may come
-					addr[(i + y)*4*800 + (j + x)] = win_addr[i*4*w + j];
+					addr[(i + y)*4*800 + (j + x*4)] = win_addr[i*4*w + j];
 				}
 			}
 		}
@@ -346,14 +346,15 @@ void * compositor(){
         }
 		if(FD_ISSET(mouse_fd, &fds)){
 			char mouse_buff[3];
+			int ret = read(mouse_fd, mouse_buff, 3);
 			int left_clicked = mouse_buff[0]&1;
 			int right_clicked = mouse_buff[0]*2;
 			int xflag = 1, yflag = 1;
-			if(mouse_buff[1] < 0){
+			if(mouse_buff[1] >> 7 == 1){
 				mouse_buff[1] = ~mouse_buff[1] + 1;
 				xflag = -1;
 			}
-			if(mouse_buff[2] < 0){
+			if(mouse_buff[2] >> 7 == 1){
 				mouse_buff[2] = ~mouse_buff[2] + 1;
 				yflag = -1;
 			}
@@ -361,7 +362,8 @@ void * compositor(){
 			int change_in_y = yflag * mouse_buff[2];
 			struct window * mouse_window = (struct window *)(window_list->tail->data_ptr);
 			mouse_window->x += change_in_x;
-			mouse_window->y += change_in_y;
+			mouse_window->y -= change_in_y;
+			printf("%d %d change\n", change_in_x, change_in_y);
 		}
     }
 }
