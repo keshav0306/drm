@@ -16,7 +16,7 @@
 #include "common_include.h"
 #include "server_include.h"
 #include "display_drm.h"
-
+//sdf
 struct display * display;
 char file_create_buff[9000000];
 struct list * window_list;
