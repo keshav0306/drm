@@ -381,7 +381,7 @@ void * compositor(){
 
     		pthread_mutex_lock(&window_list->lock);
 			if(left_clicked){
-				for(struct element * element = window_list->tail->prev; element->prev->prev != NULL; element=element->prev){
+				for(struct element * element = window_list->tail->prev; element->prev->prev != NULL && element != window_list->head; element=element->prev){
 					struct window * window = (struct window *)element->data_ptr;
 					int ms_x = mouse_window->x;
 					int ms_y = mouse_window->y;
