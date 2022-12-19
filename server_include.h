@@ -9,4 +9,6 @@ struct window{
 	int width;
 	int mapped;
 	char * addr;
+	int x;
+	int y;
 };

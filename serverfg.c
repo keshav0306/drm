@@ -16,7 +16,7 @@
 #include "common_include.h"
 #include "server_include.h"
 #include "display_drm.h"
-//sdf
+
 struct display * display;
 char file_create_buff[9000000];
 struct list * window_list;
@@ -253,9 +253,9 @@ void compositor_draw(struct display * display, int fb){
     for(struct element * element = window_list->head->next;element != NULL; element = element->next){
     		struct window * window = ((struct window *)(element->data_ptr));
 		int map = window->mapped;
-		int x = 100;
+		int x = window->x;
 		printf("%d\n", (((struct window *)(window_list->head->next->data_ptr))->addr)[0]);
-		int y = 50;
+		int y = window->y;
 		int h = window->height;
 		int w = window->width;
 		//int h = 100;
@@ -265,9 +265,9 @@ void compositor_draw(struct display * display, int fb){
 		char * win_addr = window->addr;
 		if(map == 1){
 //			printf("inside %c", win_addr[0]);
-			for(int i=0;i<w;i++){
-				for(int j=0;j<h;j++){
-					addr[(i + x)*4*800 + 4*(j + y)] = win_addr[i*4*w + 4*j];
+			for(int i=0;i<h;i++){
+				for(int j=0;j<4*w;j++){
+					addr[(i + x)*4*800 + (j + y)] = win_addr[i*4*w + j];
 				}
 			}
 		}
@@ -275,7 +275,7 @@ void compositor_draw(struct display * display, int fb){
     }
    
    pthread_mutex_unlock(&window_list->lock); 
-  usleep(1000); 
+   usleep(1000); 
    drm_page_flip(display->fd, display->fbs[fb]->fb_id, display->crtc_id);
 //	printf("draw happened\n");
 //}
