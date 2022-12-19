@@ -33,9 +33,13 @@ char * make_file(int * num_file){
 	char buff[30] = COMMON_FILE_NAME;
 	char num_buff[11];
 	*num_file = num;
+	printf("%s\n", COMMON_FILE_NAME);
 	sprintf(num_buff, "%d", num++);
+	printf("%s\n", num_buff);
 	char * combined_buff = (char *)malloc(sizeof(char) * (strlen(buff) + strlen(num_buff) + 1));
-	combined_buff = strcat(buff, num_buff);
+	char * cat = strcat(buff, num_buff);
+	strcpy(combined_buff, cat);
+	printf("%d:%d, %s\n", strlen(buff) + strlen(num_buff) + 1, strlen(combined_buff),combined_buff);
 	pthread_mutex_unlock(&name_of_file_lock);
 	return combined_buff;
 }
@@ -65,8 +69,10 @@ struct response * request_create_window(struct request * request){
 	int fd = open(name, O_CREAT | O_RDWR);
 	write(fd, file_create_buff, size);
 	close(fd);
+	printf("name is %s\n", name);
 	int key = ftok(name, 0);
-    int id = shmget(key, size, 0777 | IPC_CREAT);
+	printf("key is %d\n", key);
+    int id = shmget(key, size, 0664 | IPC_CREAT);
 
 	if(id < 0){
 		perror("shmget error");
