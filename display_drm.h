@@ -14,10 +14,13 @@ struct framebuffer{
 
 struct display{
     int fd;
+    int mouse_fd;
     int connector_id;
     uint64_t ptr_connector_id;
     int encoder_id;
     int crtc_id;
+    int height;
+    int width;
     struct framebuffer ** fbs;
     struct drm_mode_modeinfo mode;
 };
