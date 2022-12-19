@@ -25,12 +25,30 @@ struct list * list_init(){
 }
 
 void list_insert(struct list * list, uint64_t data_ptr, int id){
+
     pthread_mutex_lock(&list->lock);
     struct element * element = create_new_element(data_ptr, id);
     element->prev = list->tail;
     list->tail->next = element;
     list->length += 1;
     list->tail = element;
+    pthread_mutex_unlock(&list->lock);
+
+}
+
+void insert_before_last(struct list * list, uint64_t data_ptr, int id){
+    
+    pthread_mutex_lock(&list->lock);
+    if(list->length == 1){
+        return;
+    }
+    struct element * element = create_new_element(data_ptr, id);
+    struct element * second_last = list->tail->prev;
+    second_last->next = element;
+    element->prev = second_last;
+    element->next = list->tail;
+    list->tail->prev = element;
+    list->length += 1;
     pthread_mutex_unlock(&list->lock);
 
 }
