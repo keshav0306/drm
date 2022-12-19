@@ -378,6 +378,31 @@ void * compositor(){
 			mouse_window->x += change_in_x;
 			mouse_window->y -= change_in_y;
 			printf("%d %d change\n", change_in_x, change_in_y);
+
+    		pthread_mutex_lock(&window_list->lock);
+			if(left_clicked){
+				for(struct element * element = window_list->tail->prev; element->prev->prev != NULL; element=element->prev){
+					struct window * window = (struct window *)element->data_ptr;
+					int ms_x = mouse_window->x;
+					int ms_y = mouse_window->y;
+					if(ms_x > window->x && ms_x < window->x + window->width && ms_y < window->y && ms_y > window->y + WINDOW_BAR_HEIGHT){
+						if(element == window_list->tail->prev){
+							window->x += change_in_x;
+							window->y -= change_in_y;
+						}else{
+							struct window * next = window->next;
+							window->prev->next = next;
+							next->prev = window->prev;
+							window->next = window_list->tail;
+							window->prev = window_list->tail->prev;
+							window_list->tail->prev->next = window;
+							window_list->tail->prev = window;
+						}
+					}
+				}
+			}
+    		pthread_mutex_lock(&window_list->lock);
+
 		}
     }
 }
