@@ -390,13 +390,13 @@ void * compositor(){
 							window->x += change_in_x;
 							window->y -= change_in_y;
 						}else{
-							struct window * next = window->next;
-							window->prev->next = next;
-							next->prev = window->prev;
-							window->next = window_list->tail;
-							window->prev = window_list->tail->prev;
-							window_list->tail->prev->next = window;
-							window_list->tail->prev = window;
+							struct element * next = element->next;
+							element->prev->next = next;
+							next->prev = element->prev;
+							element->next = window_list->tail;
+							element->prev = window_list->tail->prev;
+							window_list->tail->prev->next = element;
+							window_list->tail->prev = element;
 						}
 					}
 				}
