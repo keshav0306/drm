@@ -18,6 +18,9 @@
 #include "server_include.h"
 #include "display_drm.h"
 
+int window_bar_active[4];
+int window_bar_inactive[4];
+
 struct display * display;
 char file_create_buff[9000000];
 struct list * window_list;
@@ -299,9 +302,20 @@ void compositor_draw(struct display * display, int fb){
 //		printf("%d * %d, %d\n", x, y, map);
 		char * win_addr = window->addr;
 		if(map == 1){
+			if(element->next != NULL){
+				for(int i=0;i<WINDOW_BAR_HEIGHT;i++){
+					for(int j=0;j<4*w;j++){
+						if(element->next->next == NULL){
+							addr[(i + (y - WINDOW_BAR_HEIGHT)) * 4 * 800 + (j + x*4)] = window_bar_active[j%4];
+						}
+						else{
+							addr[(i + (y - WINDOW_BAR_HEIGHT)) * 4 * 800 + (j + x*4)] = window_bar_inactive[j%4];
+						}
+					}
+				}
+			}
 			for(int i=0;i<h;i++){
 				for(int j=0;j<4*w;j++){
-					// need to do bound checking here otherwise seg fault may come
 					addr[(i + y)*4*800 + (j + x*4)] = win_addr[i*4*w + j];
 				}
 			}
@@ -411,9 +425,24 @@ int start_the_server(){
 
 }
 
+void init_window_bar_colour(){
+
+	window_bar_active[0] = 0xFF;
+	window_bar_active[1] = 0xFF;
+	window_bar_active[2] = 0xA5;
+	window_bar_active[3] = 0x00;
+
+	window_bar_inactive[0] = 0xFF;
+	window_bar_inactive[1] = 0xFF;
+	window_bar_inactive[2] = 0x00;
+	window_bar_inactive[3] = 0x00;
+
+}
+
 void initialize_globals(){
 	pthread_mutex_init(&name_of_file_lock, NULL);
 	pthread_mutex_init(&window_id_lock, NULL);
+	init_window_bar_colour();
 	num = 0;
 	display = NULL;
 	window_id = 1; // window_id = 0 given to root window
