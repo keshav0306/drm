@@ -126,8 +126,10 @@ void open_keyboard(){
 			char * name = dir->d_name;
 			int length = strlen(name);
 			if(length >= 3 && name[length-1] == 'd' && name[length-2] == 'b' && name[length-3] == 'k'){
-				char * out = strcat(path, name);
-				int fd = open(out, O_RDONLY);
+				char buff[1024];
+				strcpy(buff, path);
+				strcat(buff, name);
+				int fd = open(buff, O_RDONLY);
 				if(fd < 0){
 					perror("can't access keyboard\n");
 					exit(0);
