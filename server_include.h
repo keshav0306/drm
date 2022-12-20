@@ -16,3 +16,17 @@ struct window{
 	int x;
 	int y;
 };
+
+struct mouse_window{
+	int window_id;
+	int height;
+	int size;
+	int width;
+	int mapped;
+	char * addr;
+	int x;
+	int y;
+	int left_clicked;
+	int right_clicked;
+	int mid_clicked;
+};

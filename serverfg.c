@@ -18,6 +18,7 @@
 #include "server_include.h"
 #include "display_drm.h"
 #include "compositor.h"
+#include "requests.h"
 
 
 struct display * display;

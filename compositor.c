@@ -1,11 +1,20 @@
-#include "compositor.h"
 #include <stdio.h>
-#include <sys/select.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <pthread.h>
+#include <fcntl.h>
+#include <stdint.h>
+#include <drm/drm.h>
+#include <drm/drm_mode.h>
+
 #include "list.h"
 #include "common_include.h"
 #include "server_include.h"
 #include "display_drm.h"
+#include "compositor.h"
+#include "requests.h"
+
 
 extern struct display * display;
 extern struct list * window_list;
