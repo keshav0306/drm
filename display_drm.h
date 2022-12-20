@@ -15,6 +15,7 @@ struct framebuffer{
 struct display{
     int fd;
     int mouse_fd;
+    int kbd_fd;
     int connector_id;
     int encoder_id;
     int crtc_id;

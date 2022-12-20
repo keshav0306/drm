@@ -21,7 +21,7 @@ int main(int argc, char ** argv){
 	while(1){
 		struct event * event = get_current_event(window, handle);
 		if(event){
-			if(event->left_clicked){
+			if(event->key == 48){
 				unmap_window(window, handle);
 			}
 		}

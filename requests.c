@@ -7,6 +7,9 @@
 #include <sys/ipc.h>
 #include <stdint.h>
 #include <sys/shm.h>
+#include <sys/ioctl.h>
+#include <linux/input.h>
+#include <linux/input-event-codes.h>
 
 #include "list.h"
 #include "common_include.h"
@@ -189,6 +192,7 @@ struct response * request_current_event(struct request * request){
 		response->return_value = 0;
 		response->num_responses = 1;
 		response->response[0] = 0;
+		memset(response->response, 0, NUM_ARGS);
 
 		if(mouse->x > x && mouse->x < x + w && mouse->y > y && mouse->y < y + h){
 			response->response[0] |= 1 << MOUSE_EVENT;
@@ -205,6 +209,25 @@ struct response * request_current_event(struct request * request){
 		}
 
 		// keyboard event
+		uint8_t key[KEY_MAX/8 + 1];
+		memset(key, 0, KEY_MAX/8 + 1);
+		ioctl(display->kbd_fd, EVIOCGKEY(sizeof(key)), key);
+		// currently transporting only one key if multiple keys are pressed
+		for(int i=0;i<KEY_MAX;i++){
+			if(key[i] != 0){
+				int j;
+				response->return_value += 1;
+				response->num_responses += 1;
+				response->response[0] |= 1 << KEYBOARD_EVENT;
+				for(j=0;j<8;j++){
+					if(key[i] >> j){
+						break;
+					}
+				}
+				response->response[6] = (8 * i) + j;
+				break;
+			}
+		}
 
 		if(!mouse_flag && !keyboard_flag){
 			response->response[0] |= NO_EVENT;

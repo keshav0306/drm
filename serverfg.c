@@ -10,6 +10,7 @@
 #include <sys/ipc.h>
 #include <stdint.h>
 #include <sys/shm.h>
+#include <dirent.h>
 #include <drm/drm.h>
 #include <drm/drm_mode.h>
 
@@ -109,11 +110,34 @@ void initialize_globals(){
 void open_mouse(){
 	int mouse_fd = open("/dev/input/mice", O_RDONLY);
 	if(mouse_fd < 0){
-		perror("Error opeing mouse\n");
+		perror("error opeing mouse\n");
 		exit(1);
 	}
 
 	display->mouse_fd = mouse_fd;
+}
+
+void open_keyboard(){
+	char * path = "/dev/input/by-id/";
+	DIR * d = opendir(path);
+	struct dirent * dir;
+	if(d){
+		while((dir = readdir(d)) != NULL){
+			char * name = dir->d_name;
+			int length = dir->d_namlen;
+			if(length >= 3 && name[length-1] == 'd' && name[length-2] == 'b' && name[length-3] == 'k'){
+				char * out = strcat(path, name);
+				int fd = open(out, O_RDONLY);
+				if(fd < 0){
+					perror("can't access keyboard\n");
+					exit(0);
+				}
+				display->kbd_fd = fd;
+				break;
+			}
+		}
+	}
+	closedir(d);
 }
 
 void display_init(){
@@ -136,6 +160,8 @@ void display_init(){
 	start_display(display);
 
 	open_mouse();
+
+	open_keyboard();
 
 	create_mouse_window();
 

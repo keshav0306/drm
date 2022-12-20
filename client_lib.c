@@ -197,7 +197,7 @@ struct event *  get_current_event(struct window * window, int handle){
             event->mid_clicked = response->response[5];
         }
         if(event_bits >> KEYBOARD_EVENT){
-
+            event->key = response->response[6];
         }
         return event;
     }else{
