@@ -19,6 +19,12 @@ int main(int argc, char ** argv){
 	}
 	map_window(window, handle);
 	while(1){
+		struct event * event = get_current_event(window, handle);
+		if(event){
+			if(event->left_clicked){
+				unmap_window(window, handle);
+			}
+		}
 		memset(window->addr, 255, window->size);
 		sleep(1);
 	}

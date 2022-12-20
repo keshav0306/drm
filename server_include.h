@@ -3,7 +3,7 @@
 #define MOUSE_HEIGHT 20
 #define MOUSE_WIDTH 20
 #define MOUSE_ID 1024
-#define WINDOW_BAR_HEIGHT 10
+#define WINDOW_BAR_HEIGHT 20
 
 
 struct window{

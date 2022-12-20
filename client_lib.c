@@ -164,3 +164,43 @@ int destroy_window(struct window * window, int handle){
     return response->return_value;
 
 }
+
+struct event *  get_current_event(struct window * window, int handle){
+    struct request * request = (struct request *)malloc(sizeof(struct request));
+    request->opcode = CURRENT_EVENT;
+	request->num_args = 1;
+    request->args[0] = window->window_id;
+
+	int ret = write(handle, request, sizeof(struct request));
+    if(ret != sizeof(struct request)){
+        printf("destroy_window error");
+        return -1;
+    }
+    ret = read(handle, buffer, BUFF_SIZE);    
+
+    if(ret < 0 || ret != sizeof(struct response)){
+        return NULL;
+    }
+
+	struct response * response = (struct response *)buffer;
+    int event_bits = response->response[0];
+
+    if(!(event_bits >> NO_EVENT)){
+        int num_responses = response->num_responses;
+        struct event * event = (struct event *)malloc(sizeof(struct event));
+        event->event_bits = response->response[0];
+        if(event_bits >> MOUSE_EVENT){
+            event->x = response->response[1];
+            event->y = response->response[2];
+            event->left_clicked = response->response[3];
+            event->right_clicked = response->response[4];
+            event->mid_clicked = response->response[5];
+        }
+        if(event_bits >> KEYBOARD_EVENT){
+
+        }
+        return event;
+    }else{
+        return NULL;
+    }
+}

@@ -19,6 +19,7 @@ pthread_mutex_t name_of_file_lock;
 int window_id;
 pthread_mutex_t window_id_lock;
 char file_create_buff[9000000];
+extern struct mouse_window * mouse;
 
 
 extern struct display * display;
@@ -168,19 +169,48 @@ struct response * request_current_event(struct request * request){
 	
 	int send_event = 0;
 	pthread_mutex_lock(&window_list->lock);
+
 	struct window * active_window = ((struct window *)(window_list->tail->prev->data_ptr));
+	int x = active_window->x;
+	int y = active_window->y;
+	int h = active_window->height;
+	int w = active_window->width;
+
 	if(window_id == active_window->window_id){
 		send_event = 1;
 	}
-	pthread_mutex_unlock(&window_list->lock);
 	if(!send_event){
 		response->return_value = 0;
 		response->num_responses = 0;
 	}
 	else{
+		int mouse_flag = 0;
+		int keyboard_flag = 0;
+		response->return_value = 0;
+		response->num_responses = 1;
+		response->response[0] = 0;
 
+		if(mouse->x > x && mouse->x < x + w && mouse->y > y && mouse->y < y + h){
+			response->response[0] |= MOUSE_EVENT;
+			response->return_value += 1;
+			int start = response->num_responses;
+			response->num_responses += 5;
+			response->response[1] = mouse->x - x;
+			response->response[2] = mouse->y - y;
+			response->response[3] = mouse->left_clicked;
+			response->response[4] = mouse->right_clicked;
+			response->response[5] = mouse->mid_clicked;
+			mouse_flag = 1;
+		}
+
+		// keyboard event
+
+		if(!mouse_flag && !keyboard_flag){
+			response->response[0] |= NO_EVENT;
+		}
 	}
 
+	pthread_mutex_unlock(&window_list->lock);
 	return response;
 
 	error:

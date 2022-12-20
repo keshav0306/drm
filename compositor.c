@@ -15,6 +15,7 @@
 #include "compositor.h"
 #include "requests.h"
 
+struct mouse_window * mouse;
 
 extern struct display * display;
 extern struct list * window_list;
@@ -212,6 +213,7 @@ void create_mouse_window(){
 	new_window->y = display->height / 2;
 	new_window->addr = malloc(new_window->size);
 	memset(new_window->addr, 255, new_window->size);
+	mouse = new_window;
 	list_insert(window_list, (uint64_t)(new_window), MOUSE_ID);
 
 }
