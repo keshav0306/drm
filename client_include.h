@@ -24,4 +24,4 @@ struct window * create_window(int height, int width, int handle);
 int map_window(struct window * window, int handle);
 int unmap_window(struct window * window, int handle);
 int destroy_window(struct window * window, int handle);
-int get_current_event(struct window * window, int handle);
+struct event * get_current_event(struct window * window, int handle);

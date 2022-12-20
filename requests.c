@@ -191,12 +191,13 @@ struct response * request_current_event(struct request * request){
 		response->response[0] = 0;
 
 		if(mouse->x > x && mouse->x < x + w && mouse->y > y && mouse->y < y + h){
-			response->response[0] |= MOUSE_EVENT;
+			response->response[0] |= 1 << MOUSE_EVENT;
 			response->return_value += 1;
 			int start = response->num_responses;
 			response->num_responses += 5;
 			response->response[1] = mouse->x - x;
 			response->response[2] = mouse->y - y;
+			printf("%d %d\n", response->response[1], response->response[2]);
 			response->response[3] = mouse->left_clicked;
 			response->response[4] = mouse->right_clicked;
 			response->response[5] = mouse->mid_clicked;

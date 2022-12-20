@@ -174,7 +174,7 @@ struct event *  get_current_event(struct window * window, int handle){
 	int ret = write(handle, request, sizeof(struct request));
     if(ret != sizeof(struct request)){
         printf("destroy_window error");
-        return -1;
+        return NULL;
     }
     ret = read(handle, buffer, BUFF_SIZE);    
 
