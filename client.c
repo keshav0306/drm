@@ -4,6 +4,8 @@
 #include <sys/ipc.h>
 #include <stdint.h>
 #include <sys/shm.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "list.h"
 #include "client_include.h"
