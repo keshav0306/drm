@@ -216,7 +216,7 @@ struct response * request_current_event(struct request * request){
 		memset(key, 0, KEY_MAX/8 + 1);
 		ioctl(display->kbd_fd, EVIOCGKEY(sizeof(key)), key);
 		// currently transporting only one key if multiple keys are pressed
-		for(int i=0;i<KEY_MAX;i++){
+		for(int i=0;i<KEY_MAX/8;i++){
 			if(key[i] != 0){
 				int j;
 				response->return_value += 1;
