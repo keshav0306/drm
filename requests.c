@@ -10,6 +10,8 @@
 #include <sys/ioctl.h>
 #include <linux/input.h>
 #include <linux/input-event-codes.h>
+#include <drm/drm.h>
+#include <drm/drm_mode.h>
 
 #include "list.h"
 #include "common_include.h"
