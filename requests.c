@@ -14,6 +14,7 @@
 #include "list.h"
 #include "common_include.h"
 #include "server_include.h"
+#include "display_drm.h"
 #include "compositor.h"
 
 int num;

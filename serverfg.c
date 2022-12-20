@@ -124,7 +124,7 @@ void open_keyboard(){
 	if(d){
 		while((dir = readdir(d)) != NULL){
 			char * name = dir->d_name;
-			int length = dir->d_namlen;
+			int length = strlen(name);
 			if(length >= 3 && name[length-1] == 'd' && name[length-2] == 'b' && name[length-3] == 'k'){
 				char * out = strcat(path, name);
 				int fd = open(out, O_RDONLY);
