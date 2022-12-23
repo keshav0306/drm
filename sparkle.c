@@ -64,7 +64,7 @@ int draw_line_simple(struct context * context, int x1, int y1, int x2, int y2, i
     }
 }
 
-int draw_line_simple(struct context * context, int x1, int y1, int x2, int y2, int colour){
+int draw_line(struct context * context, int x1, int y1, int x2, int y2, int colour){
     return draw_line_mid_pt(context, x1, y1, x2, y2 ,colour);
 }
 
