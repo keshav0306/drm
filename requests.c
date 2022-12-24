@@ -12,13 +12,14 @@
 #include <linux/input-event-codes.h>
 #include <drm/drm.h>
 #include <drm/drm_mode.h>
-
+#include <stdio_ext.h>
 #include "list.h"
 #include "common_include.h"
 #include "server_include.h"
 #include "display_drm.h"
 #include "compositor.h"
 
+extern void open_keyboard();
 int num;
 pthread_mutex_t name_of_file_lock;
 
@@ -215,19 +216,34 @@ struct response * request_current_event(struct request * request){
 		uint8_t key[KEY_MAX/8 + 1];
 		memset(key, 0, KEY_MAX/8 + 1);
 		ioctl(display->kbd_fd, EVIOCGKEY(sizeof(key)), key);
+		char buff[256];
+ 	
+		
+	//	__fpurge(fdopen(display->kbd_fd, "r"));
 		// currently transporting only one key if multiple keys are pressed
 		for(int i=0;i<KEY_MAX/8;i++){
 			if(key[i] != 0){
 				int j;
-				response->return_value += 1;
-				response->num_responses += 1;
-				response->response[0] |= 1 << KEYBOARD_EVENT;
+		int ret = read(display->kbd_fd, buff, 256);
 				for(j=0;j<8;j++){
-					if(key[i] >> j){
+					int left = key[i] / 2;
+					if(key[i] & 1 << j){
 						break;
 					}
+		
 				}
-				response->response[6] = (8 * i) + j;
+	if(ret < 0){
+			printf("read kbd error\n");
+		}
+		struct input_event * ev = (struct input_event *) buff;
+		
+
+				if(ev->type == EV_MSC || (ev -> type == EV_KEY && ev -> code == 8 * i + j)){
+					response->response[6] = (8 * i) + j;
+					response->return_value +=1;
+					response->num_responses += 1;
+					response->response[0] |= 1 << KEYBOARD_EVENT;
+				}
 				break;
 			}
 		}
