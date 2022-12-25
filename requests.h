@@ -1,8 +1,3 @@
-struct kbd_state{
-    int key;
-    int num;
-};
-
 void init_request_globals();
 struct response * handle_request(struct request * request);
 struct response * request_destroy_window(struct request * request);

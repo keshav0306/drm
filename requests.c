@@ -14,7 +14,6 @@
 #include <drm/drm_mode.h>
 #include <stdio_ext.h>
 
-#include "requests.h"
 #include "list.h"
 #include "common_include.h"
 #include "server_include.h"
@@ -25,11 +24,16 @@ extern void open_keyboard();
 int num;
 pthread_mutex_t name_of_file_lock;
 
+struct kbd_state{
+	int num;
+	int key;
+};
+
 int window_id;
 pthread_mutex_t window_id_lock;
 char file_create_buff[9000000];
 extern struct mouse_window * mouse;
-struct kbd_state kstate;
+struct kbd_state kbd_state;
 
 extern struct display * display;
 extern struct list * window_list;
@@ -328,8 +332,8 @@ struct response * handle_request(struct request * request){
 void init_request_globals(){
     pthread_mutex_init(&name_of_file_lock, NULL);
 	pthread_mutex_init(&window_id_lock, NULL);
-	kstate.key = 0;
-	kstate.num = 0;
+	kbd_state.key = 0;
+	kbd_state.num = 0;
 	window_id = 1; // window_id = 0 given to root window
 	num = 0;
 }
