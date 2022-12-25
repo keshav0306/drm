@@ -41,10 +41,10 @@ void * handle_the_window(void * args){
 			return 0;
 		}
 		struct request * request = (struct request *)buffer;
-		printf("requested opcode %d\n", request->opcode);
-		printf("%d %d\n", request->args[0], request->args[1]);
+		// printf("requested opcode %d\n", request->opcode);
+		// printf("%d %d\n", request->args[0], request->args[1]);
 		struct response * response = handle_request(request);
-		printf("respond value %d\n", response->return_value);
+		// printf("respond value %d\n", response->return_value);
 		int len = write(fd, response, sizeof(struct response));
 		if(len != sizeof(struct response)){
 			printf("write error\n");

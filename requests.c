@@ -43,13 +43,13 @@ char * make_file(int * num_file){
 	char buff[30] = COMMON_FILE_NAME;
 	char num_buff[11];
 	*num_file = num;
-	printf("%s\n", COMMON_FILE_NAME);
+	// printf("%s\n", COMMON_FILE_NAME);
 	sprintf(num_buff, "%d", num++);
-	printf("%s\n", num_buff);
+	// printf("%s\n", num_buff);
 	char * combined_buff = (char *)malloc(sizeof(char) * (strlen(buff) + strlen(num_buff) + 1));
 	char * cat = strcat(buff, num_buff);
 	strcpy(combined_buff, cat);
-	printf("%d:%d, %s\n", strlen(buff) + strlen(num_buff) + 1, strlen(combined_buff),combined_buff);
+	// printf("%d:%d, %s\n", strlen(buff) + strlen(num_buff) + 1, strlen(combined_buff),combined_buff);
 	pthread_mutex_unlock(&name_of_file_lock);
 	return combined_buff;
 }
@@ -211,7 +211,7 @@ struct response * request_current_event(struct request * request){
 			response->num_responses += 5;
 			response->response[1] = mouse->x - x;
 			response->response[2] = mouse->y - y;
-			printf("%d %d\n", response->response[1], response->response[2]);
+			// printf("%d %d\n", response->response[1], response->response[2]);
 			response->response[3] = mouse->left_clicked;
 			response->response[4] = mouse->right_clicked;
 			response->response[5] = mouse->mid_clicked;
@@ -241,7 +241,10 @@ struct response * request_current_event(struct request * request){
 				}
 
 				struct input_event * ev = (struct input_event *) buff;
-				for(int i=0;i<ret/sizeof(struct input_event);i++){
+				for(int k=0;k<ret/sizeof(struct input_event);k++){
+					if((ev + k) -> type != EV_KEY){
+						continue;
+					}
 					int send = 0;
 					if(kbd_state.key != 8*i + j){
 						send = 1;
@@ -254,7 +257,7 @@ struct response * request_current_event(struct request * request){
 							kbd_state.num++;
 						}
 					}
-					if((send && (ev + i) -> type == EV_KEY && (ev + i) -> code == 8 * i + j)){
+					if((send &&  (ev + k) -> code == 8 * i + j)){
 						response->response[6] = (8 * i) + j;
 						response->return_value += 1;
 						response->num_responses += 1;
@@ -279,6 +282,7 @@ struct response * request_current_event(struct request * request){
 
 	error:
 	return error_response();
+}
 }
 
 struct response * request_destroy_window(struct request * request){
