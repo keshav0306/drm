@@ -96,6 +96,7 @@ int main(){
                 if(ret < 0){
                     exit(0);
                 }
+                memset(window->addr, 255, window->size);
 		        draw_text(context, buff, 0, 0, 0x00000000);
 
             }
