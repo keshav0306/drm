@@ -18,6 +18,11 @@ void initialize_font(){
                                             P, Q, R, S, T, U, V, W, X, Y, Z};
 
     const int * numbers[10] = {zero, one, two, three, four, five, six, seven, eight, nine};
+    const int * begin[16] = {space, exclaim, apostphe, hash, dollar, percent, amperson, single_ap, right_rnd, left_rnd, \
+                            star, plus, comma, minus, dot, fslash};
+    const int * mid[7] = {colon, semicolon, less, equal, greater, question, at};
+    const int * mid_again[6] = {sq_right, back_slash, lft_sqr, up, underscore, bck_tick};
+    const int * end[4] = {curly_rght, line, curly_left, tilda};
 
     for(int i=0;i<10;i++){
         font_map[i + 48] = numbers[i];
@@ -28,7 +33,18 @@ void initialize_font(){
     for(int i=0;i<26;i++){
         font_map[i + 97] = lower_case_alphabets[i];
     }
-    font_map[32] = space;
+    for(int i=0;i<16;i++){
+        font_map[i + 32] = begin[i];  
+    }
+    for(int i=0;i<7;i++){
+        font_map[i + 58] = mid[i];  
+    }
+    for(int i=0;i<6;i++){
+        font_map[i + 91] = mid_again[i];  
+    }
+    for(int i=0;i<4;i++){
+        font_map[i + 123] = end[i];  
+    }
 }
 
 void initialze_kbd_map(){
