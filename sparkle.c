@@ -4,16 +4,18 @@
 #include <stdio.h>
 #include "font.h"
 
-uint64_t font_map[128] = {0};
-const uint64_t lower_case_alphabets[26] = {a, b, c, d, e, f, g, h, i, j, k, l, m, n, o,\
-                                            p, q, r, s, t, u, v, w, x, y, z};
+int * font_map[128] = {0};
 
-const uint64_t upper_case_alphabets[26] = {A, B, C, D, E, F, G, H, I, J, K, L, M, N, O,\
-                                            P, Q, R, S, T, U, V, W, X, Y, Z};
-
-const uint64_t numbers[10] = {zero, one, two, three, four, five, six, seven, eight, nine};
 
 void initialize_font(){
+    const int * lower_case_alphabets[26] = {a, b, c, d, e, f, g, h, i, j, k, l, m, n, o,\
+                                            p, q, r, s, t, u, v, w, x, y, z};
+
+    const int * upper_case_alphabets[26] = {A, B, C, D, E, F, G, H, I, J, K, L, M, N, O,\
+                                            P, Q, R, S, T, U, V, W, X, Y, Z};
+
+    const int * numbers[10] = {zero, one, two, three, four, five, six, seven, eight, nine};
+
     for(int i=0;i<10;i++){
         font_map[i + 48] = numbers[i];
     }
