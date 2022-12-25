@@ -2,10 +2,13 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <linux/input-event-codes.h>
 #include "font.h"
 
 int * font_map[128] = {0};
-
+char kbd_map[256] = {0}; // only for text editing applications ... otherwise applications must process raw events from server
+int iec_alphabets[26] = {30, 48, 46, 32, 18, 33, 34, 35, 23, 36, 37, 38, 50, 49\
+                        24, 25, 16, 19, 31, 20, 22, 47, 17, 45, 21, 44};
 
 void initialize_font(){
     const int * lower_case_alphabets[26] = {a, b, c, d, e, f, g, h, i, j, k, l, m, n, o,\
@@ -27,12 +30,37 @@ void initialize_font(){
     }
 }
 
+void initialze_kbd_map(){
+    // based on linux/input-event-codes.h
+
+    //numbers
+    for(int i=2;i<11;i++){
+        kbd_map[i] = i + 47;
+    }
+    kbd_map[11] = 48;
+    //alphabets (only lower case)
+    for(int i=0;i<26;i++){
+        kbd_map[iec_alphabets[i]] = i + 97;
+    }
+
+    //backspace, enter -> mapping them to ascii '\b' and '\n'
+
+    kbd_map[14] = '\b';
+    kbd_map[28] = '\n';
+
+}
+
+char to_char(int key_code){
+    return kbd_map[key_code];
+}
+
 struct context * new_context(int height, int width, char * addr){
     struct context * context = (struct context *)malloc(sizeof(struct context));
     context->height = height;
     context->width = width;
     context->addr = addr;
     initialize_font();
+    initialze_kbd_map();
     return context;
 }
 

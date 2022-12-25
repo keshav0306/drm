@@ -23,15 +23,18 @@ int main(int argc, char ** argv){
 	struct context * context = new_context(window->height, window->width, window->addr);
 	memset(window->addr, 255, window->size);
 	unsigned int * addr = (unsigned int *) window->addr;
+	char buffer[1024] = "hello world";
+	int i = strlen(buffer);
 	while(1){
 		struct event * event = get_current_event(window, handle);
-		// draw an a
-		// for(int i=0;i<8;i++){
-		// 	for(int j=0;j<8;j++){
-		// 		addr[i * 400 + j] = (1 - a[i * 8 + j]) * ((1 << 31) -1);
-		// 	}
-		// }
-		draw_text(context, "hello world", 0, 0, 0x00000000);
+		draw_text(context, buffer, 0, 0, 0x00000000);
+		if(event->event_bits & 1 << KEYBOARD_EVENT){
+			char c = to_char(event->key);
+			if(!c){
+				buffer[i++] = c;
+				buffer[i] = 0;
+			}
+		}
 		usleep(1000);
 	}
 }
