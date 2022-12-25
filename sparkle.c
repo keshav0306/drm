@@ -162,6 +162,7 @@ int draw_text(struct context * context, char * string, int x, int y, int colour)
         char character = *c;
         if(*c == '\n'){
             curr_y += y_dim;
+            curr_x = 0;
         }
         if(*c == '\b'){
             // implement properly later
