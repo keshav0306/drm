@@ -149,7 +149,7 @@ int draw_text(struct context * context, char * string, int x, int y, int colour)
         }
         if(*c == '\b'){
             // implement properly later
-            x_curr -= x_dim;
+            curr_x -= x_dim;
             for(int i=0;i<y_dim;i++){
                 for(int j=0;j<x_dim;j++){
                     pixel[width * (i + curr_y) + j + curr_x] = (1 << 31) - 1;
