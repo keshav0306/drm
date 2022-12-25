@@ -79,7 +79,7 @@ int main(){
         memset(window->addr, 255, window->size);
         unsigned int * addr = (unsigned int *) window->addr;
 
-
+        char buffer[1024] = {0};
         char command[1024];
         sleep(1);
         // orig.c_lflag &= ~ECHO;
@@ -96,8 +96,9 @@ int main(){
                 if(ret < 0){
                     exit(0);
                 }
+                strcat(buffer, buff);
                 memset(window->addr, 255, window->size);
-		        draw_text(context, buff, 0, 0, 0x00000000);
+		        draw_text(context, buffer, 0, 0, 0x00000000);
 
             }
             if(FD_ISSET(STDIN_FILENO, &fds)){
