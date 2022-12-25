@@ -2,12 +2,35 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "font.h"
+
+uint64_t font_map[128] = {0};
+const uint64_t lower_case_alphabets[26] = {a, b, c, d, e, f, g, h, i, j, k, l, m, n, o,\
+                                            p, q, r, s, t, u, v, w, x, y, z};
+
+const uint64_t upper_case_alphabets[26] = {A, B, C, D, E, F, G, H, I, J, K, L, M, N, O,\
+                                            P, Q, R, S, T, U, V, W, X, Y, Z};
+
+const uint64_t numbers[10] = {zero, one, two, three, four, five, six, seven, eight, nine};
+
+void initialize_font(){
+    for(int i=0;i<10;i++){
+        font_map[i + 48] = numbers[i];
+    }
+    for(int i=0;i<26;i++){
+        font_map[i + 65] = upper_case_alphabets[i];
+    }
+    for(int i=0;i<26;i++){
+        font_map[i + 97] = lower_case_alphabets[i];
+    }
+}
 
 struct context * new_context(int height, int width, char * addr){
     struct context * context = (struct context *)malloc(sizeof(struct context));
     context->height = height;
     context->width = width;
     context->addr = addr;
+    initialize_font();
     return context;
 }
 
@@ -75,5 +98,42 @@ int draw_circle(struct context * context, int x, int y, int radius, int colour){
         int y2 = (-1 * base) + y;
         draw_point(context, i, y1, colour);
         draw_point(context, i, y2, colour);
+    }
+}
+
+int draw_text(struct context * context, char * string, int x, int y, int colour){
+    char * addr = context->addr;
+    int height = context->height;
+    int width = context->width;
+    int * pixel = (int *) addr;
+    int curr_x = x, curr_y = y;
+
+    for(char * c = &string[0]; *c != '\0'; c++){
+        char character = *c;
+        int * pixel_map = (int *)(font_map[character]);
+        if(!pixel_map){
+            continue;
+        }
+        int x_dim = FONT_SIZE_X;
+        int y_dim = FONT_SIZE_Y;
+        int cond1 = x_dim < width  - curr_x;
+        int cond2 = y_dim < height - curr_y;
+        if(!cond2){
+            curr_y = 0;
+            curr_x = 0;
+        }
+        else if(!cond1){
+            curr_x = 0;
+            curr_y += y_dim;
+        }
+        
+        for(int i=0;i<y_dim;i++){
+            for(int j=0;j<x_dim;j++){
+                if(pixel_map[x_dim * i + j]){
+                    pixel[width * (i + curr_y) + j + curr_x] = pixel_map[x_dim * i + j] * colour;
+                }
+            }
+        }
+        curr_x += x_dim;
     }
 }
