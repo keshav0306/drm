@@ -1,3 +1,5 @@
+#define _XOPEN_SOURCE 600
+
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>

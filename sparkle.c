@@ -28,6 +28,7 @@ void initialize_font(){
     for(int i=0;i<26;i++){
         font_map[i + 97] = lower_case_alphabets[i];
     }
+    font_map[32] = space;
 }
 
 void initialze_kbd_map(){
@@ -139,13 +140,27 @@ int draw_text(struct context * context, char * string, int x, int y, int colour)
     int curr_x = x, curr_y = y;
 
     for(char * c = &string[0]; *c != '\0'; c++){
+        int x_dim = FONT_SIZE_X;
+        int y_dim = FONT_SIZE_Y;
+        
         char character = *c;
+        if(*c == '\n'){
+            curr_y += y_dim;
+        }
+        if(*c == '\b'){
+            // implement properly later
+            x_curr -= x_dim;
+            for(int i=0;i<y_dim;i++){
+                for(int j=0;j<x_dim;j++){
+                    pixel[width * (i + curr_y) + j + curr_x] = (1 << 31) - 1;
+                }
+            }
+        }
         int * pixel_map = (int *)(font_map[character]);
         if(!pixel_map){
             continue;
         }
-        int x_dim = FONT_SIZE_X;
-        int y_dim = FONT_SIZE_Y;
+        
         int cond1 = x_dim < width  - curr_x;
         
         if(!cond1){

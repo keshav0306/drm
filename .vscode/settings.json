@@ -1,0 +1,9 @@
+{
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/Users/keshavgupta/Desktop/window/drm",
+            "binaryPath": "/Users/keshavgupta/Desktop/window/drm/c",
+            "binaryArgs": []
+        }
+    ]
+}
