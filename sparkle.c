@@ -5,9 +5,9 @@
 #include <linux/input-event-codes.h>
 #include "font.h"
 
-int * font_map[128] = {0};
+const int * font_map[128] = {0};
 char kbd_map[256] = {0}; // only for text editing applications ... otherwise applications must process raw events from server
-int iec_alphabets[26] = {30, 48, 46, 32, 18, 33, 34, 35, 23, 36, 37, 38, 50, 49\
+int iec_alphabets[26] = {30, 48, 46, 32, 18, 33, 34, 35, 23, 36, 37, 38, 50, 49,\
                         24, 25, 16, 19, 31, 20, 22, 47, 17, 45, 21, 44};
 
 void initialize_font(){

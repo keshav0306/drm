@@ -30,7 +30,7 @@ int main(int argc, char ** argv){
 		draw_text(context, buffer, 0, 0, 0x00000000);
 		if(event->event_bits & 1 << KEYBOARD_EVENT){
 			char c = to_char(event->key);
-			if(!c){
+			if(c != 0 && i < 1024){
 				buffer[i++] = c;
 				buffer[i] = 0;
 			}

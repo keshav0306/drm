@@ -13,6 +13,8 @@
 #include <drm/drm.h>
 #include <drm/drm_mode.h>
 #include <stdio_ext.h>
+
+#include "requests.h"
 #include "list.h"
 #include "common_include.h"
 #include "server_include.h"
@@ -27,7 +29,7 @@ int window_id;
 pthread_mutex_t window_id_lock;
 char file_create_buff[9000000];
 extern struct mouse_window * mouse;
-
+struct kbd_state kstate;
 
 extern struct display * display;
 extern struct list * window_list;
@@ -218,13 +220,10 @@ struct response * request_current_event(struct request * request){
 		ioctl(display->kbd_fd, EVIOCGKEY(sizeof(key)), key);
 		char buff[256];
  	
-		
-	//	__fpurge(fdopen(display->kbd_fd, "r"));
 		// currently transporting only one key if multiple keys are pressed
 		for(int i=0;i<KEY_MAX/8;i++){
 			if(key[i] != 0){
 				int j;
-		int ret = read(display->kbd_fd, buff, 256);
 				for(j=0;j<8;j++){
 					int left = key[i] / 2;
 					if(key[i] & 1 << j){
@@ -232,27 +231,45 @@ struct response * request_current_event(struct request * request){
 					}
 		
 				}
-	if(ret < 0){
-			printf("read kbd error\n");
-		}
-		struct input_event * ev = (struct input_event *) buff;
-		
-
-				if(ev->type == EV_MSC || (ev -> type == EV_KEY && ev -> code == 8 * i + j)){
-					response->response[6] = (8 * i) + j;
-					response->return_value +=1;
-					response->num_responses += 1;
-					response->response[0] |= 1 << KEYBOARD_EVENT;
+				int ret = read(display->kbd_fd, buff, 256);
+				if(ret < 0){
+					printf("read kbd error\n");
 				}
-				break;
+
+				struct input_event * ev = (struct input_event *) buff;
+				for(int i=0;i<ret/sizeof(struct input_event);i++){
+					int send = 0;
+					if(kbd_state.key != 8*i + j){
+						send = 1;
+					}
+					else{
+						if(kbd_state.num >= 2){
+							send = 1;
+						}
+						else{
+							kbd_state.num++;
+						}
+					}
+					if((send && (ev + i) -> type == EV_KEY && (ev + i) -> code == 8 * i + j)){
+						response->response[6] = (8 * i) + j;
+						response->return_value += 1;
+						response->num_responses += 1;
+						response->response[0] |= 1 << KEYBOARD_EVENT;
+						keyboard_flag = 1;
+						kbd_state.key = 8*i+j;
+						kbd_state.num = 1;
+					}
+					goto out;
+				}
+			
 			}
 		}
-
+	
 		if(!mouse_flag && !keyboard_flag){
 			response->response[0] |= NO_EVENT;
 		}
-	}
-
+	
+	out:
 	pthread_mutex_unlock(&window_list->lock);
 	return response;
 
@@ -311,6 +328,8 @@ struct response * handle_request(struct request * request){
 void init_request_globals(){
     pthread_mutex_init(&name_of_file_lock, NULL);
 	pthread_mutex_init(&window_id_lock, NULL);
+	kstate.key = 0;
+	kstate.num = 0;
 	window_id = 1; // window_id = 0 given to root window
 	num = 0;
 }
