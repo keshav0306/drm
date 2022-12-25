@@ -1,10 +1,20 @@
-#include <stdlib.h>
-#include <fcntl.h>
 #include <sys/ioctl.h>
 #include <termios.h>
-#include <stdio.h>
 #include <unistd.h>
+#include <pthread.h>
+#include <fcntl.h>
+#include <sys/ipc.h>
+#include <stdint.h>
+#include <sys/shm.h>
+#include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+#include <sys/stat.h>
+#include <sys/select.h>
+
+#include "list.h"
+#include "client_include.h"
+#include "sparkle.h"
 
 struct termios orig;
 
@@ -13,6 +23,10 @@ void reset(){
 }
 
 int main(){
+
+  
+    // opening the pty
+
     int fd = posix_openpt(O_RDWR | O_NOCTTY);
     if(fd < 0){
         perror("master open error\n");
@@ -50,9 +64,23 @@ int main(){
     }
     else if(pid != 0){
         // master
+
+        // setting up the connection with the display manager
+
+        int handle = connect_to_server("127.0.0.1");
+        struct window * window = create_window(400, 400, handle);
+        if(window == NULL){
+            exit(1);
+        }
+        map_window(window, handle);
+        struct context * context = new_context(window->height, window->width, window->addr);
+        memset(window->addr, 255, window->size);
+        unsigned int * addr = (unsigned int *) window->addr;
+
+
         char command[1024];
         sleep(1);
-        orig.c_lflag &= ~ECHO;
+        // orig.c_lflag &= ~ECHO;
         tcsetattr(STDIN_FILENO, TCSANOW, &orig);
         atexit(reset);
         fd_set fds;
@@ -66,11 +94,19 @@ int main(){
                 if(ret < 0){
                     exit(0);
                 }
-                printf("%s\n", buff);
+		        draw_text(context, buff, 0, 0, 0x00000000);
+
             }
             if(FD_ISSET(STDIN_FILENO, &fds)){
-                read(STDIN_FILENO, command, 1024);
-                write(fd, command, 1024);
+                struct event * event = get_current_event(window, handle);
+                char c;
+		        if(event->event_bits & 1 << KEYBOARD_EVENT){
+			        c = to_char(event->key);
+                    if(c != 0){
+                        write(fd, &c, 1);
+                    }
+		        }
+                // read(STDIN_FILENO, command, 1024);s
             }
         
         }
@@ -95,7 +131,7 @@ int main(){
         dup2(sfd, 0);
         dup2(sfd, 1);
         dup2(sfd, 2);
-        execlp("/bin/zsh", "/bin/zsh",  NULL);
+        execlp("/bin/bash", "/bin/bash",  NULL);
         printf("failed\n");
     }
 
