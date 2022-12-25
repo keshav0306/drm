@@ -11,7 +11,7 @@
 #include "list.h"
 #include "client_include.h"
 #include "sparkle.h"
-#include "font.h"
+
 
 int main(int argc, char ** argv){
 	int handle = connect_to_server("127.0.0.1");
