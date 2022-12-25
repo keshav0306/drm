@@ -19,20 +19,19 @@ int main(int argc, char ** argv){
 	if(window == NULL){
 		exit(1);
 	}
-	int fd = open("font.h", O_CREAT | O_APPEND | O_RDWR);
 	map_window(window, handle);
-	chmod("font.h", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH);
 	struct context * context = new_context(window->height, window->width, window->addr);
 	memset(window->addr, 255, window->size);
-	int * addr = (int *) window->addr;
+	unsigned int * addr = (unsigned int *) window->addr;
 	while(1){
 		struct event * event = get_current_event(window, handle);
 		// draw an a
-		for(int i=0;i<8;i++){
-			for(int j=0;j<8;j++){
-				addr[i * 400 + j] = a[i * 8 + j];
-			}
-		}
+		// for(int i=0;i<8;i++){
+		// 	for(int j=0;j<8;j++){
+		// 		addr[i * 400 + j] = (1 - a[i * 8 + j]) * ((1 << 31) -1);
+		// 	}
+		// }
+		draw_text(context, "hello world", 0, 0, 0x00000000);
 		usleep(1000);
 	}
 }
