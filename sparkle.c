@@ -119,14 +119,15 @@ int draw_text(struct context * context, char * string, int x, int y, int colour)
         int x_dim = FONT_SIZE_X;
         int y_dim = FONT_SIZE_Y;
         int cond1 = x_dim < width  - curr_x;
-        int cond2 = y_dim < height - curr_y;
-        if(!cond2){
-            curr_y = 0;
+        
+        if(!cond1){
+            curr_y += y_dim;
             curr_x = 0;
         }
-        else if(!cond1){
+        int cond2 = y_dim < height - curr_y;
+        if(!cond2){
             curr_x = 0;
-            curr_y += y_dim;
+            curr_y = 0;
         }
         
         for(int i=0;i<y_dim;i++){
