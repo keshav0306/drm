@@ -73,9 +73,9 @@ struct response * request_create_window(struct request * request, int fd){
 	int num_file;
 	int size = height * width * 4;
 	char * name = make_file(&num_file);
-	int fd = open(name, O_CREAT | O_RDWR);
-	write(fd, file_create_buff, size);
-	close(fd);
+	int fdn = open(name, O_CREAT | O_RDWR);
+	write(fdn, file_create_buff, size);
+	close(fdn);
 	int key = ftok(name, 0);
     int id = shmget(key, size, 0664 | IPC_CREAT);
 
@@ -301,7 +301,7 @@ struct response * request_destroy_window(struct request * request){
 	int shm_id = -1;
 
 	pthread_mutex_lock(&window_list->lock);
-	for(struct element * element = window_list->head; element != NULL; element = element->next){
+	for(struct element * element = window_list->head->next; element != NULL; element = element->next){
 		if(element->id == window_id){
 			struct window * window = (struct window *)(element->data_ptr);
 			shm_id = window->shm_id;
