@@ -148,23 +148,23 @@ int draw_circle(struct context * context, int x, int y, int radius, int colour){
     }
 }
 
-int draw_text(struct context * context, char * string, int x, int y, int colour){
+int draw_text(struct context * context, char * string, int len, int x, int y, int colour){
     char * addr = context->addr;
     int height = context->height;
     int width = context->width;
     int * pixel = (int *) addr;
     int curr_x = x, curr_y = y;
 
-    for(char * c = &string[0]; *c != '\0'; c++){
+    for(int i = =; i != len; i++){
         int x_dim = FONT_SIZE_X;
         int y_dim = FONT_SIZE_Y;
         
-        char character = *c;
-        if(*c == '\n'){
+        char character = string[i];
+        if(character == '\n'){
             curr_y += y_dim;
             curr_x = 0;
         }
-        if(*c == '\b'){
+        if(character == '\b'){
             // implement properly later
             curr_x -= x_dim;
             for(int i=0;i<y_dim;i++){
