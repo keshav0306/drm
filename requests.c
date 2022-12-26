@@ -299,7 +299,7 @@ struct response * request_destroy_window(struct request * request){
 	int shm_id = -1;
 
 	pthread_mutex_lock(&window_list->lock);
-	for(struct element * element = list->head; element != NULL; element = element->next){
+	for(struct element * element = window_list->head; element != NULL; element = element->next){
 		if(element->id == window_id){
 			struct window * window = (struct window *)(element->data_ptr);
 			shm_id = window->shm_id;
