@@ -155,7 +155,7 @@ int draw_text(struct context * context, char * string, int len, int x, int y, in
     int * pixel = (int *) addr;
     int curr_x = x, curr_y = y;
 
-    for(int i = =; i != len; i++){
+    for(int i = 0; i != len; i++){
         int x_dim = FONT_SIZE_X;
         int y_dim = FONT_SIZE_Y;
         
