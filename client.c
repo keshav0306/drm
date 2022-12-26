@@ -27,7 +27,7 @@ int main(int argc, char ** argv){
 	int i = strlen(buffer);
 	while(1){
 		struct event * event = get_current_event(window, handle);
-		draw_text(context, buffer, 0, 0, 0x00000000);
+		draw_text(context, buffer, strlen(buffer), 0, 0, 0x00000000);
 		if(event->event_bits & 1 << KEYBOARD_EVENT){
 			char c = to_char(event->key);
 			if(c != 0 && i < 1024){
