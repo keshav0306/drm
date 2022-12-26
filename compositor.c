@@ -149,6 +149,7 @@ void * compositor(){
 						if(element == window_list->tail->prev){
 							window->x += change_in_x;
 							window->y -= change_in_y;
+							// 
 							printf("inside selected one\n");
 						}
 						else if(!prev_left_clicked){
@@ -159,7 +160,7 @@ void * compositor(){
 							element->prev = window_list->tail->prev;
 							window_list->tail->prev->next = element;
 							window_list->tail->prev = element;
-							printf("inside unselected one\n");
+							// printf("inside unselected one\n");
 						}
 					break;
 					}
@@ -169,6 +170,7 @@ void * compositor(){
     		pthread_mutex_unlock(&window_list->lock);
 
 		}
+		
     }
 }
 

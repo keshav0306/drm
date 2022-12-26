@@ -51,7 +51,8 @@ void * handle_the_window(void * args){
 		}
 	}
 	// the connection is closed
-	int w_id = -1;
+	
+	t w_id = -1;
 	pthread_mutex_lock(&window_list->lock);
 	for(struct element * element = window_list->head->next; element != NULL; element = element->next){
 		struct window * window = (struct window *)(element->data_ptr);

@@ -1,3 +1,5 @@
+all:server terminal client
+
 client:
 	gcc client.c client_lib.c sparkle.c -o c -lm
 

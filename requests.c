@@ -220,7 +220,7 @@ struct response * request_current_event(struct request * request){
 		int ret = ioctl(display->kbd_fd, EVIOCGKEY(sizeof(key)), key);
 		if (ret < 0){
 			perror("kbd ioctl_error");
-			goto out;
+			goto flag;
 		}
 		char buff[256];
  	
@@ -272,19 +272,21 @@ struct response * request_current_event(struct request * request){
 			
 			}
 		}
-	
+	flag:
 		if(!mouse_flag && !keyboard_flag){
 			response->response[0] |= NO_EVENT;
 		}
-	
-	out:
+
+	}
+
+	out:	
 	pthread_mutex_unlock(&window_list->lock);
 	return response;
 
 	error:
 	pthread_mutex_unlock(&window_list->lock);
 	return error_response();
-}
+
 }
 
 struct response * request_destroy_window(struct request * request){
