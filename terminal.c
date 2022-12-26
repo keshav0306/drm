@@ -82,36 +82,47 @@ int main(){
         char buffer[1024] = {0};
         char command[1024];
         sleep(1);
-        // orig.c_lflag &= ~ECHO;
+        orig.c_lflag &= ~(ECHO|ICANON);
         tcsetattr(STDIN_FILENO, TCSANOW, &orig);
         atexit(reset);
         fd_set fds;
         FD_ZERO(&fds);
+	memset(buff, 0, 1024);
+	int pos = 0;
         while(1){
             FD_SET(fd, &fds);
             FD_SET(STDIN_FILENO, &fds);
             int ret = select(fd + 1, &fds, NULL, NULL, NULL);
             if(FD_ISSET(fd, &fds)){
-                int ret = read(fd, buff, 1024);
+                int rt = read(fd, buff + pos, 1024 - pos);
+		pos += rt;
+		//printf("%d\n", pos);
                 if(ret < 0){
                     exit(0);
                 }
-                strcat(buffer, buff);
+                //strcat(buffer, buff);
+	//	for(int i=0;i<pos;i++){
+	//		printf("%c", buff[i]);
+	//	}
+	//	fflush(stdout);
                 memset(window->addr, 255, window->size);
-		        draw_text(context, buffer, 0, 0, 0x00000000);
-
+		        draw_text(context, buff, pos, 0, 0, 0x00000000);
+		//memset(buff, 0, 1024);
             }
             if(FD_ISSET(STDIN_FILENO, &fds)){
+
                 struct event * event = get_current_event(window, handle);
                 char c;
-		        if(event->event_bits & 1 << KEYBOARD_EVENT){
-			        c = to_char(event->key);
-                    if(c != 0){
-                        write(fd, &c, 1);
-                    }
-		        }
-                // read(STDIN_FILENO, command, 1024);s
-            }
+		  //      if(event->event_bits & 1 << KEYBOARD_EVENT){
+		//	        c = to_char(event->key);
+                 //   if(c != 0){
+		//	    printf("got %d\n", c);
+                  //      write(fd, &c, 1);
+                    //}
+		      //  }
+               ret = read(STDIN_FILENO, command, 1024);
+	       write(fd, command, ret);
+           }
         
         }
     }
@@ -135,7 +146,7 @@ int main(){
         dup2(sfd, 0);
         dup2(sfd, 1);
         dup2(sfd, 2);
-        execlp("/bin/bash", "/bin/bash",  NULL);
+        execlp("/bin/sh", "/bin/sh",  NULL);
         printf("failed\n");
     }
 
