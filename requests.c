@@ -60,7 +60,7 @@ struct response * error_response(){
 
 }
 
-struct response * request_create_window(struct request * request){
+struct response * request_create_window(struct request * request, int fd){
 	
 	int num_args = request->num_args;
 	struct response * response;
@@ -101,6 +101,8 @@ struct response * request_create_window(struct request * request){
 	new_window->mapped = 0;
 	new_window->size = size;
 	new_window->addr = ptr;
+	new_window->conn_id = fd;
+	new_window->shm_id = id;
 	new_window->window_id = response->response[0];
 
 	insert_before_last(window_list, (uint64_t)new_window, new_window->window_id);
@@ -320,12 +322,12 @@ struct response * request_destroy_window(struct request * request){
 	return error_response();
 }
 
-struct response * handle_request(struct request * request){
+struct response * handle_request(struct request * request, int fd){
 	int opcode = request->opcode;
 	struct response * response;
 	switch(opcode){
 		case CREATE_WINDOW:
-			response = request_create_window(request);
+			response = request_create_window(request, fd);
 		break;
 		case MAP_WINDOW:
 			response = request_map_window(request);

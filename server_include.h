@@ -9,6 +9,7 @@
 struct window{
 	int window_id;
 	int shm_id;
+	int conn_id; // fd
 	int height;
 	int size;
 	int width;
@@ -20,6 +21,8 @@ struct window{
 
 struct mouse_window{
 	int window_id;
+	int shm_id;
+	int conn_id;
 	int height;
 	int size;
 	int width;
@@ -27,6 +30,8 @@ struct mouse_window{
 	char * addr;
 	int x;
 	int y;
+
+
 	int left_clicked;
 	int right_clicked;
 	int mid_clicked;

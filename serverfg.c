@@ -42,7 +42,7 @@ void * handle_the_window(void * args){
 		struct request * request = (struct request *)buffer;
 		// printf("requested opcode %d\n", request->opcode);
 		// printf("%d %d\n", request->args[0], request->args[1]);
-		struct response * response = handle_request(request);
+		struct response * response = handle_request(request, fd);
 		// printf("respond value %d\n", response->return_value);
 		int len = write(fd, response, sizeof(struct response));
 		if(len != sizeof(struct response)){
@@ -51,9 +51,19 @@ void * handle_the_window(void * args){
 		}
 	}
 	// the connection is closed
+	int w_id = -1;
 	pthread_mutex_lock(&window_list->lock);
-	list_delete(window_list, fd);
+	for(struct element * element = list->head; element != NULL; element = element->next){
+		struct window * window = (struct window *)(element->data_ptr);
+		if(window->conn_id == fd){
+			shmctl(window->shm_id, IPC_RMID, NULL);
+			w_id = window->window_id;
+		}
+
+	}
 	pthread_mutex_unlock(&window_list->lock);
+
+	list_delete(window_list, w_id);
 
 }
 
