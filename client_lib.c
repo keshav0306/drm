@@ -24,7 +24,7 @@ int connect_to_server(char * ip_address){
 
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sockfd == -1){
-		printf("client socket error\n");
+		perror("client socket error\n");
 		exit(1);
 	}
 
@@ -35,7 +35,7 @@ int connect_to_server(char * ip_address){
 	servaddr.sin_port = htons(PORT);
 
 	if (connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr))!= 0) {
-		printf("client connect error\n");
+		perror("client connect error\n");
 		exit(1);
 	}
     return sockfd;
@@ -51,15 +51,12 @@ struct window * create_window(int height, int width, int handle){
 	request->args[1] = width;
 
 	int ret = write(handle, request, sizeof(struct request));
-//	int ret = write(handle, "hi", 3);
-	printf("write ret is %d\n", ret);
 	if(ret < 0){
 	perror("ret error\n");
 	}
     ret = read(handle, buffer, BUFF_SIZE);    
-	printf("read ret is %d\n", ret);
     if(ret < 0 || ret != sizeof(struct response)){
-	    printf("inside create window if%d, %d\n", ret, sizeof(struct response));
+	    perror("read error create_window\n");
         return NULL;
     }
 
@@ -76,12 +73,10 @@ struct window * create_window(int height, int width, int handle){
         int size = response->response[2];
         new_window->size = size;
         int id = shmget(key, size, 0);
-        printf("id is %d\n", id);
         new_window->addr = (char *)shmat(id, 0, 0);
         if(new_window->addr < 0){
-            printf("shmat error\n");
+            perror("shmat error\n");
         }
-        printf("%p\n", new_window->addr);
         return new_window;
 
     }
@@ -100,7 +95,7 @@ int map_window(struct window * window, int handle){
 
 	int ret = write(handle, request, sizeof(struct request));
     if(ret != sizeof(struct request)){
-        printf("map_window error");
+        perror("map_window error");
         return -1;
     }
     ret = read(handle, buffer, BUFF_SIZE);    
@@ -124,7 +119,7 @@ int unmap_window(struct window * window, int handle){
 
 	int ret = write(handle, request, sizeof(struct request));
     if(ret != sizeof(struct request)){
-        printf("unmap_window error");
+        perror("unmap_window error");
         return -1;
     }
     ret = read(handle, buffer, BUFF_SIZE);    
@@ -200,7 +195,8 @@ struct event *  get_current_event(struct window * window, int handle){
             event->key = response->response[6];
         }
         return event;
-    }else{
+    }
+    else{
         return NULL;
     }
 }

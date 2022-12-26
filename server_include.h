@@ -8,6 +8,7 @@
 
 struct window{
 	int window_id;
+	int shm_id;
 	int height;
 	int size;
 	int width;

@@ -43,13 +43,11 @@ void compositor_draw(struct display * display, int fb){
     
 		struct window * window = ((struct window *)(element->data_ptr));
 		int map = window->mapped;
-//		printf("%d\n", (((struct window *)(window_list->head->next->data_ptr))->addr)[0]);
 		int x = window->x;
 		int y = window->y;
 		int h = window->height;
 		int w = window->width;
 		int size = window->size;
-//		printf("%d * %d, %d\n", x, y, map);
 		char * win_addr = window->addr;
 		if(map == 1){
 			if(element->next != NULL){
@@ -138,7 +136,6 @@ void * compositor(){
 			mouse_window->left_clicked = left_clicked;
 			mouse_window->right_clicked = right_clicked;
 			mouse_window->mid_clicked = mid_clicked;
-			//printf("%d %d change\n", change_in_x, change_in_y);
 			
     		pthread_mutex_lock(&window_list->lock);
 			if(left_clicked){
@@ -153,7 +150,8 @@ void * compositor(){
 							window->x += change_in_x;
 							window->y -= change_in_y;
 							printf("inside selected one\n");
-						}else if(!prev_left_clicked){
+						}
+						else if(!prev_left_clicked){
 							struct element * next = element->next;
 							element->prev->next = next;
 							next->prev = element->prev;

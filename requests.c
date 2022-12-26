@@ -43,13 +43,10 @@ char * make_file(int * num_file){
 	char buff[30] = COMMON_FILE_NAME;
 	char num_buff[11];
 	*num_file = num;
-	// printf("%s\n", COMMON_FILE_NAME);
 	sprintf(num_buff, "%d", num++);
-	// printf("%s\n", num_buff);
 	char * combined_buff = (char *)malloc(sizeof(char) * (strlen(buff) + strlen(num_buff) + 1));
 	char * cat = strcat(buff, num_buff);
 	strcpy(combined_buff, cat);
-	// printf("%d:%d, %s\n", strlen(buff) + strlen(num_buff) + 1, strlen(combined_buff),combined_buff);
 	pthread_mutex_unlock(&name_of_file_lock);
 	return combined_buff;
 }
@@ -79,14 +76,13 @@ struct response * request_create_window(struct request * request){
 	int fd = open(name, O_CREAT | O_RDWR);
 	write(fd, file_create_buff, size);
 	close(fd);
-	printf("name is %s\n", name);
 	int key = ftok(name, 0);
     int id = shmget(key, size, 0664 | IPC_CREAT);
 
 	if(id < 0){
 		perror("shmget error");
+		goto error;
 	}
-    // shmctl(id, IPC_RMID, NULL);
 
     char * ptr = shmat(id, 0, 0);
 
@@ -97,7 +93,6 @@ struct response * request_create_window(struct request * request){
 	response->response[0] = window_id++;
 	pthread_mutex_unlock(&window_id_lock);
 	response->response[1] = key;
-	printf("id is %d\n", id);
 	response->response[2] = size;
 
 	struct window * new_window = (struct window *)malloc(sizeof(struct window));
@@ -211,7 +206,6 @@ struct response * request_current_event(struct request * request){
 			response->num_responses += 5;
 			response->response[1] = mouse->x - x;
 			response->response[2] = mouse->y - y;
-			// printf("%d %d\n", response->response[1], response->response[2]);
 			response->response[3] = mouse->left_clicked;
 			response->response[4] = mouse->right_clicked;
 			response->response[5] = mouse->mid_clicked;
@@ -221,7 +215,11 @@ struct response * request_current_event(struct request * request){
 		// keyboard event
 		uint8_t key[KEY_MAX/8 + 1];
 		memset(key, 0, KEY_MAX/8 + 1);
-		ioctl(display->kbd_fd, EVIOCGKEY(sizeof(key)), key);
+		int ret = ioctl(display->kbd_fd, EVIOCGKEY(sizeof(key)), key);
+		if (ret < 0){
+			perror("kbd ioctl_error");
+			goto out;
+		}
 		char buff[256];
  	
 		// currently transporting only one key if multiple keys are pressed
@@ -237,7 +235,8 @@ struct response * request_current_event(struct request * request){
 				}
 				int ret = read(display->kbd_fd, buff, 256);
 				if(ret < 0){
-					printf("read kbd error\n");
+					perror("read kbd error\n");
+					goto error;
 				}
 
 				struct input_event * ev = (struct input_event *) buff;
@@ -281,6 +280,7 @@ struct response * request_current_event(struct request * request){
 	return response;
 
 	error:
+	pthread_mutex_unlock(&window_list->lock);
 	return error_response();
 }
 }
@@ -296,6 +296,20 @@ struct response * request_destroy_window(struct request * request){
 	if(ret < 0){
 		goto error;
 	}
+	int shm_id = -1;
+
+	pthread_mutex_lock(&list->lock);
+	for(struct element * element = list->head; element != NULL; element = element->next){
+		if(element->id == window_id){
+			struct window * window = (struct window *)(element->data_ptr);
+			shm_id = window->shm_id;
+			break;
+		}
+
+	}
+	pthread_mutex_unlock(&list->lock);
+
+    shmctl(shm_id, IPC_RMID, NULL);
 
 	struct response * response = (struct response *)malloc(sizeof(struct response));
 	response->return_value = 0;

@@ -26,7 +26,6 @@ struct display * display;
 struct list * window_list;
 
 
-
 void * handle_the_window(void * args){
 	int fd = *((int *)args);
 	char * buffer = malloc(sizeof(char) * BUFF_SIZE);
@@ -34,11 +33,11 @@ void * handle_the_window(void * args){
 		int length_of_request = read(fd, buffer, BUFF_SIZE);
 		if(length_of_request < 0){
 			printf("read error\n");
-			return 0;
+			break;
 		}
 		if(length_of_request < sizeof(struct request)){
 			printf("network error\n");
-			return 0;
+			break;
 		}
 		struct request * request = (struct request *)buffer;
 		// printf("requested opcode %d\n", request->opcode);
@@ -48,9 +47,14 @@ void * handle_the_window(void * args){
 		int len = write(fd, response, sizeof(struct response));
 		if(len != sizeof(struct response)){
 			printf("write error\n");
-			return 0;
+			break;
 		}
 	}
+	// the connection is closed
+	pthread_mutex_lock(&window_list->lock);
+	list_delete(window_list, fd);
+	pthread_mutex_unlock(&window_list->lock);
+
 }
 
 
@@ -121,6 +125,7 @@ void open_keyboard(){
 	char * path = "/dev/input/by-id/";
 	DIR * d = opendir(path);
 	struct dirent * dir;
+	display->kbd_fd = -1;
 	if(d){
 		while((dir = readdir(d)) != NULL){
 			char * name = dir->d_name;
@@ -138,6 +143,9 @@ void open_keyboard(){
 				break;
 			}
 		}
+	}
+	else{
+		printf("accessing kbd at wrong path\n");
 	}
 	closedir(d);
 }
