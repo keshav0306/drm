@@ -298,7 +298,7 @@ struct response * request_destroy_window(struct request * request){
 	}
 	int shm_id = -1;
 
-	pthread_mutex_lock(&list->lock);
+	pthread_mutex_lock(&window_list->lock);
 	for(struct element * element = list->head; element != NULL; element = element->next){
 		if(element->id == window_id){
 			struct window * window = (struct window *)(element->data_ptr);
@@ -307,7 +307,7 @@ struct response * request_destroy_window(struct request * request){
 		}
 
 	}
-	pthread_mutex_unlock(&list->lock);
+	pthread_mutex_unlock(&window_list->lock);
 
     shmctl(shm_id, IPC_RMID, NULL);
 
