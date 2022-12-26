@@ -1,3 +1,5 @@
+#define _XOPEN_SOURCE 600
+
 #include <stdlib.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -5,6 +7,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/select.h>
 
 struct termios orig;
 
@@ -52,7 +55,7 @@ int main(){
         // master
         char command[1024];
         sleep(1);
-        orig.c_lflag &= ~ECHO;
+        orig.c_lflag &= ~(ICANON | ECHO);
         tcsetattr(STDIN_FILENO, TCSANOW, &orig);
         atexit(reset);
         fd_set fds;
@@ -66,11 +69,14 @@ int main(){
                 if(ret < 0){
                     exit(0);
                 }
-                printf("%s\n", buff);
+                for(int i=0;i<ret;i++){
+			printf("%c %d", buff[i], buff[i]);
+		}
+		fflush(stdout);
             }
             if(FD_ISSET(STDIN_FILENO, &fds)){
-                read(STDIN_FILENO, command, 1024);
-                write(fd, command, 1024);
+               int ret = read(STDIN_FILENO, command, 1024);
+                write(fd, command, ret);
             }
         
         }
@@ -88,14 +94,14 @@ int main(){
             perror("slave open error");
             exit(1);
         }
-        // orig.c_lflag &= ~ECHO;
+         //orig.c_lflag &= ~ECHO;
         tcsetattr(sfd, TCSANOW, &orig);
         ioctl(sfd, TIOCSWINSZ, &ws);
 
         dup2(sfd, 0);
         dup2(sfd, 1);
         dup2(sfd, 2);
-        execlp("/bin/zsh", "/bin/zsh",  NULL);
+        execlp("/bin/bash", "/bin/bash",  NULL);
         printf("failed\n");
     }
 
