@@ -4,7 +4,7 @@ client:
 	gcc client.c client_lib.c sparkle.c -o c -lm
 
 render:
-	gcc client.c client_lib.c sparkle.c matrix.c -o r -lm
+	gcc client_render.c client_lib.c sparkle.c matrix.c -o r -lm
 
 server:
 	gcc serverfg.c display_drm.c list.c requests.c compositor.c

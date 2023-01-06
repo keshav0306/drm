@@ -8,6 +8,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <sys/stat.h>
+#include <math.h>
+#include <assert.h>
 
 #include "list.h"
 #include "client_include.h"
