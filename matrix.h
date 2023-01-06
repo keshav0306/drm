@@ -28,7 +28,7 @@ typedef struct sqmatrix3{
 typedef struct sqmatrix4{
     vec4d * cols[4];
     float (* determinant)(struct sqmatrix4 * m);
-    vec4d * (* mult_vec4d)(struct sqmatrix4 * m, vec3d * v);
+    vec4d * (* mult_vec4d)(struct sqmatrix4 * m, vec4d * v);
     struct sqmatrix4 * (* mult_sqmatrix4)(struct sqmatrix4 * m1, struct sqmatrix4 * m2);
 }sqmatrix4;
 
