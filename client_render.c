@@ -77,13 +77,14 @@ int main(int argc, char ** argv){
                     if(dot < 0){
                     dot = 0;
                     }
-                    float clamp = abs(dot);
+                    float clamp = fabs(dot);
                     float specdot = reflect->dot(reflect, light_center);
                     if(specdot > 0){
                     }
                     if(specdot < 0){
                     specdot = 0;
                     }
+                    clamp = dot;
                     float effect_spec = pow(specdot, shine);
                     float r = sphere_color->elems[0] * clamp * light_color->elems[0] + ambient->elems[0] * sphere_color->elems[0] + light_color->elems[0] * spec->elems[0] * effect_spec;
                     float g = sphere_color->elems[1] * clamp * light_color->elems[1] + ambient->elems[1] * sphere_color->elems[1] + light_color->elems[1] * spec->elems[1] * effect_spec;

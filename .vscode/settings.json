@@ -5,5 +5,11 @@
             "binaryPath": "/Users/keshavgupta/Desktop/window/drm/c",
             "binaryArgs": []
         }
-    ]
+    ],
+    "files.associations": {
+        "chrono": "c",
+        "cmath": "c",
+        "complex": "c",
+        "cstdlib": "c"
+    }
 }
