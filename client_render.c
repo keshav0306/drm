@@ -45,20 +45,16 @@ int main(int argc, char ** argv){
 
         for(int i=0;i<height;i++){
             for(int j=0;j<width;j++){
-            // get the direction vector for the ray;
                 float x = ((float)j / (float)height) - 0.5;
                 float y = 0.5 - ((float)i / width);
                 float z = (float)1 /(float)(2*tan(angle/2));
                 vec3d * dir = make_vec3d(x, y, -z);
                 dir->normalize(dir);
-                // dir.print();
                 vec3d * c = center->add(circle_center->scale(circle_center, -1), center);
                 float A = 1;
                 float B = 2 * c->dot(dir, c);
                 float C = c->abs_squared - (radius * radius);
-                // c.print();
                 if(B*B - 4*A*C < 0){
-                // image.SetPixel(j, i, bg_color);
                 draw_point(context, j, i, 0x000000);
                 continue;
                 }
@@ -89,7 +85,6 @@ int main(int argc, char ** argv){
                     float r = sphere_color->elems[0] * clamp * light_color->elems[0] + ambient->elems[0] * sphere_color->elems[0] + light_color->elems[0] * spec->elems[0] * effect_spec;
                     float g = sphere_color->elems[1] * clamp * light_color->elems[1] + ambient->elems[1] * sphere_color->elems[1] + light_color->elems[1] * spec->elems[1] * effect_spec;
                     float b = sphere_color->elems[2] * clamp * light_color->elems[2] + ambient->elems[2] * sphere_color->elems[2] + light_color->elems[2] * spec->elems[2] * effect_spec;
-                    // image.SetPixel(j, i, pix);
                     int red = r * 255;
                     int blue = b * 255;
                     int green = g * 255;
