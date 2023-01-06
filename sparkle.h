@@ -1,3 +1,6 @@
+#ifndef SPARKLE
+#define SPARKLE
+
 struct context{
     int height;
     int width;
@@ -16,3 +19,5 @@ int draw_circle(struct context * context, int x, int y, int radius, int colour);
 int draw_text(struct context * context, char * string, int len, int x, int y, int colour);
 
 char to_char(int key_code);
+
+#endif

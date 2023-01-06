@@ -1,3 +1,6 @@
+#ifndef MATRIX
+#define MATRIX
+
 typedef struct vec3d{
     float elems[3];
     float abs;
@@ -36,3 +39,5 @@ vec3d * make_vec3d(float a1, float a2, float a3);
 vec4d * make_vec4d(float a1, float a2, float a3, float a4);
 sqmatrix3 * make_sqmatrix3(vec3d * v1, vec3d * v2, vec3d * v3);
 sqmatrix4 * make_sqmatrix4(vec4d * v1, vec4d * v2, vec4d * v3, vec4d * v4);
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef COMMON_INCLUDE
+#define COMMON_INCLUDE
+
 #define PORT 1000
 #define NUM_ARGS 10
 #define COMMON_FILE_NAME "kawaii"
@@ -27,3 +30,5 @@ struct response{
 	int num_responses;
 	int return_value;
 };
+
+#endif

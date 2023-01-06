@@ -1,3 +1,6 @@
+#ifndef DISPLAY_DRM
+#define DISPLAY_DRM
+
 enum connections{
     connected = 1,
     disconnected = 2,
@@ -39,3 +42,5 @@ void start_display(struct display * display);
 void create_framebuffers(struct display * display);
 void show_modes(int fd);
 struct display * choose_mode(int fd, int height, int width);
+
+#endif
