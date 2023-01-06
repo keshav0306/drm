@@ -50,7 +50,7 @@ float calc_abs_sq_v3(struct vec3d * v){
 }
 
 struct vec3d * normalize_v3(struct vec3d * v){
-    float sqroot = sqrt(calc_abs_v3(v));
+    float sqroot = sqrt(calc_abs_sq_v3(v));
     for(int i=0;i<3;i++){
         v->elems[i] /= sqroot;
     }
