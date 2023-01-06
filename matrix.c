@@ -5,6 +5,28 @@
 #include <unistd.h>
 #include <math.h>
 
+vec3d * make_vec3d(float a1, float a2, float a3);
+float calc_abs_sq_v3(struct vec3d * v);
+struct vec3d * normalize_v3(struct vec3d * v);
+vec4d * make_vec4d(float a1, float a2, float a3, float a4);
+vec3d * scale_3d(vec3d * v, float f);
+vec4d * scale_4d(vec4d * v, float f);
+vec3d * add_3d(vec3d * v1, vec3d * v2);
+vec4d * add_4d(vec4d * v1, vec4d * v2);
+float dot_3d(struct vec3d * v1, struct vec3d * v2);
+float dot_4d(struct vec4d * v1, struct vec4d * v2);
+float calc_abs_sq_v4(struct vec4d * v);
+struct vec4d * normalize_v4(struct vec4d * v);
+sqmatrix3 * make_sqmatrix3(vec3d * v1, vec3d * v2, vec3d * v3);
+sqmatrix3 * mult_3b3(struct sqmatrix3 * m1, struct sqmatrix3 * m2);
+vec3d * mult_3b1(struct sqmatrix3 * m, vec3d * v);
+float det_m3(sqmatrix3 * m);
+sqmatrix4 * make_sqmatrix4(vec4d * v1, vec4d * v2, vec4d * v3, vec4d * v4);
+sqmatrix4 * mult_4b4(struct sqmatrix4 * m1, struct sqmatrix4 * m2);
+vec4d * mult_4b1(struct sqmatrix4 * m, vec4d * v);
+float det_m4(sqmatrix4 * m);
+
+
 vec3d * make_vec3d(float a1, float a2, float a3){
     vec3d * v = (vec3d * )malloc(sizeof(vec3d));
     v->elems[0] = a1;
@@ -106,7 +128,7 @@ float calc_abs_sq_v4(struct vec4d * v){
 }
 
 struct vec4d * normalize_v4(struct vec4d * v){
-    float sqroot = sqrt(calc_abs_v4(v));
+    float sqroot = sqrt(calc_abs_sq_v4(v));
     for(int i=0;i<4;i++){
         v->elems[i] /= sqroot;
     }
