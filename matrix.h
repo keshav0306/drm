@@ -4,8 +4,8 @@ typedef struct vec3d{
     float abs_squared;
     struct vec3d * (* normalize)(struct vec3d * v);
     float (* dot)(struct vec3d * v1, struct vec3d * v2);
-    vec3d * (*scale)(struct vec3d * v, float f);
-    vec3d * (*add)(struct vec3d * v1, struct vec3d * v2);
+    struct vec3d * (*scale)(struct vec3d * v, float f);
+    struct vec3d * (*add)(struct vec3d * v1, struct vec3d * v2);
 }vec3d;
 
 typedef struct vec4d{
@@ -14,8 +14,8 @@ typedef struct vec4d{
     float abs_squared;
     struct vec4d * (* normalize)(struct vec4d * v);
     float (* dot)(struct vec4d * v1, struct vec4d * v2);
-    vec4d * (*scale)(struct vec4d * v, float f);
-    vec4d * (*add)(struct vec4d * v1, struct vec4d * v2);
+    struct vec4d * (*scale)(struct vec4d * v, float f);
+    struct vec4d * (*add)(struct vec4d * v1, struct vec4d * v2);
 }vec4d;
 
 typedef struct sqmatrix3{
