@@ -76,6 +76,7 @@ int main(int argc, char ** argv){
                     dot = 0;
                     }
                     float clamp = fabs(dot);
+                    reflect->normalize(reflect);
                     float specdot = reflect->dot(reflect, light_center);
                     if(specdot > 0){
                     }
@@ -90,7 +91,7 @@ int main(int argc, char ** argv){
                     int red = r * 255;
                     int blue = b * 255;
                     int green = g * 255;
-                    int colour = 0 << 24 + red << 16 + green << 8 + blue; 
+                    int colour = (0 << 24) + (red << 16) + (green << 8) + blue; 
                     draw_point(context, j, i, colour);
                 }
             }
