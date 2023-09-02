@@ -30,5 +30,5 @@
  for building the client library, and the applications
 
 ### OR simply run 
-### make all 
+ make all 
 to build everything
